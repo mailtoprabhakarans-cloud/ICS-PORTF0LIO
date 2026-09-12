@@ -185,7 +185,16 @@ export default function AuthModal() {
 
         if (error) {
           setErrorMessage(error.message);
-          toast.error("Account registration failed", { description: error.message });
+          if (
+            error.message.toLowerCase().includes("already exists") ||
+            error.message.toLowerCase().includes("already registered")
+          ) {
+            toast.warning("Account Already Exists", {
+              description: "This email is already registered. Please sign in instead.",
+            });
+          } else {
+            toast.error("Account registration failed", { description: error.message });
+          }
         } else {
           setMode("otp");
           setResendCountdown(45);
@@ -423,10 +432,29 @@ export default function AuthModal() {
                 <motion.div
                   initial={{ opacity: 0, y: -6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-2.5 rounded-2xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/40 p-3.5 text-xs text-red-700 dark:text-red-300 font-medium"
+                  className="rounded-2xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/40 p-3.5 text-xs text-red-700 dark:text-red-300 font-medium"
                 >
-                  <AlertCircle className="size-4.5 shrink-0 text-red-600 dark:text-red-400" />
-                  <span>{errorMessage}</span>
+                  <div className="flex items-start gap-2.5">
+                    <AlertCircle className="size-4.5 shrink-0 text-red-600 dark:text-red-400 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold leading-relaxed">{errorMessage}</p>
+                      {errorMessage.toLowerCase().includes("already") && (
+                        <div className="mt-2.5 pt-2 border-t border-red-200/60 dark:border-red-900/40 flex items-center justify-between gap-2">
+                          <span className="text-[11px] text-red-600 dark:text-red-400 font-normal">Already have an account?</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setMode("signin");
+                              setErrorMessage(null);
+                            }}
+                            className="rounded-lg bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-xs font-bold transition-colors cursor-pointer shadow-xs"
+                          >
+                            Sign In Now →
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </motion.div>
               )}
 

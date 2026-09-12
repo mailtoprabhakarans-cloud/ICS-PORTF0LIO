@@ -219,33 +219,91 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string,
     metadata?: SignUpMetadata,
   ): Promise<{ error: Error | null; user: User | null; demoOtp?: string }> => {
-    // Generate a reliable 6-digit verification code
-    const demoCode = Math.floor(100000 + Math.random() * 900000).toString();
-    setPendingSignup({
-      email,
-      password,
-      metadata,
-      demoOtp: demoCode,
-    });
+    const cleanEmail = email.trim().toLowerCase();
 
+    // Check demo mode duplicate
     if (!isSupabaseConfigured) {
+      const savedUser = localStorage.getItem(DEMO_USER_KEY);
+      if (savedUser) {
+        try {
+          const parsed = JSON.parse(savedUser);
+          if (parsed.email?.toLowerCase() === cleanEmail) {
+            return {
+              error: new Error("An account with this email address already exists. Please sign in instead."),
+              user: null,
+            };
+          }
+        } catch {
+          // ignore
+        }
+      }
+      const demoCode = Math.floor(100000 + Math.random() * 900000).toString();
+      setPendingSignup({
+        email: cleanEmail,
+        password,
+        metadata,
+        demoOtp: demoCode,
+      });
       return { error: null, user: null, demoOtp: demoCode };
     }
 
     try {
+      // Check existing profile table
+      try {
+        const { data: existingProfile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("email", cleanEmail)
+          .maybeSingle();
+
+        if (existingProfile) {
+          return {
+            error: new Error("An account with this email address already exists. Please sign in instead."),
+            user: null,
+          };
+        }
+      } catch {
+        // Continue if RLS restricts public profile queries
+      }
+
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: cleanEmail,
         password,
         ...(metadata ? { options: { data: metadata } } : {}),
       });
 
       if (error) {
-        return { error, user: null, demoOtp: demoCode };
+        if (
+          error.message.toLowerCase().includes("already registered") ||
+          error.message.toLowerCase().includes("already exists") ||
+          error.message.toLowerCase().includes("unique constraint") ||
+          (error as any).status === 422
+        ) {
+          return {
+            error: new Error("An account with this email address already exists. Please sign in instead."),
+            user: null,
+          };
+        }
+        return { error, user: null };
       }
 
-      return { error: null, user: data.user, demoOtp: demoCode };
+      // Check if user already exists (Supabase returns empty identities array for existing users when email confirmation is enabled)
+      if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+        return {
+          error: new Error("An account with this email address already exists. Please sign in instead."),
+          user: data.user,
+        };
+      }
+
+      setPendingSignup({
+        email: cleanEmail,
+        password,
+        metadata,
+      });
+
+      return { error: null, user: data.user };
     } catch (err: any) {
-      return { error: err, user: null, demoOtp: demoCode };
+      return { error: err, user: null };
     }
   };
 
