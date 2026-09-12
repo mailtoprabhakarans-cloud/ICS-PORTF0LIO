@@ -58,7 +58,6 @@ export default function AuthModal() {
 
   // OTP State (6 Digits)
   const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
-  const [demoOtpCode, setDemoOtpCode] = useState<string | null>(null);
   const [resendCountdown, setResendCountdown] = useState<number>(45);
   const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -121,24 +120,16 @@ export default function AuthModal() {
     otpInputRefs.current[focusIndex]?.focus();
   };
 
-  const handleAutoFillDemoCode = () => {
-    if (demoOtpCode) {
-      setOtpDigits(demoOtpCode.split("").slice(0, 6));
-      toast.success("Demo code auto-filled!", { description: `OTP: ${demoOtpCode}` });
-    }
-  };
-
   const handleResendOtp = async () => {
     if (resendCountdown > 0 || loading) return;
     setLoading(true);
     setErrorMessage(null);
     try {
-      const { error, demoOtp } = await resendOtp(email);
+      const { error } = await resendOtp(email);
       if (error) {
         setErrorMessage(error.message);
         toast.error("Failed to resend code", { description: error.message });
       } else {
-        if (demoOtp) setDemoOtpCode(demoOtp);
         setResendCountdown(45);
         toast.success("New verification code sent!", {
           description: `Check ${email} for your 6-digit OTP.`,
@@ -196,7 +187,6 @@ export default function AuthModal() {
           setErrorMessage(error.message);
           toast.error("Account registration failed", { description: error.message });
         } else {
-          if (demoOtp) setDemoOtpCode(demoOtp);
           setMode("otp");
           setResendCountdown(45);
           setOtpDigits(["", "", "", "", "", ""]);
@@ -684,26 +674,6 @@ export default function AuthModal() {
                       ))}
                     </div>
                   </div>
-
-                  {/* Demo Helper Banner (If simulated OTP is active) */}
-                  {demoOtpCode && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.96 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="flex items-center justify-between rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 px-3.5 py-2.5 text-xs text-amber-900 dark:text-amber-300"
-                    >
-                      <span className="font-medium">
-                        Demo Verification Code: <strong className="font-mono text-sm tracking-widest">{demoOtpCode}</strong>
-                      </span>
-                      <button
-                        type="button"
-                        onClick={handleAutoFillDemoCode}
-                        className="rounded-lg bg-amber-200/80 dark:bg-amber-800/60 hover:bg-amber-300 dark:hover:bg-amber-700/80 px-2.5 py-1 text-[11px] font-bold text-amber-950 dark:text-amber-100 transition-colors"
-                      >
-                        Auto-Fill
-                      </button>
-                    </motion.div>
-                  )}
 
                   {/* Resend OTP & Change Email Controls */}
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-1 text-xs">
