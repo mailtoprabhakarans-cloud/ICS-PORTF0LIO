@@ -65,11 +65,11 @@ export default function Footer() {
                   COMPUTER STORE
                 </span>
               </div>
-              <div className="flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-[10px] font-bold tracking-[0.06em] text-[#0c2340] dark:text-blue-300 uppercase mt-1 whitespace-nowrap">
+              <div className="flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-[10px] font-bold tracking-[0.06em] text-blue-950 dark:text-sky-400 uppercase mt-1 whitespace-nowrap">
                 <span>IT HARDWARE &amp; SOFTWARE</span>
-                <span className="text-slate-400 dark:text-slate-500 font-normal px-0.5">|</span>
+                <span className="text-slate-300 dark:text-slate-600 font-normal px-0.5">|</span>
                 <span>CCTV &amp; SECURITY</span>
-                <span className="text-slate-400 dark:text-slate-500 font-normal px-0.5">|</span>
+                <span className="text-slate-300 dark:text-slate-600 font-normal px-0.5">|</span>
                 <span>NETWORKING</span>
               </div>
               <span className="block text-xs font-semibold text-muted-foreground mt-1">

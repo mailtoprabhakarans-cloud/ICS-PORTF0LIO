@@ -179,7 +179,7 @@ export default function Header() {
                   COMPUTER STORE
                 </span>
               </div>
-              <div className="flex items-center gap-1 sm:gap-1.5 mt-1 font-sans text-[8px] sm:text-[9.5px] lg:text-[10.5px] font-extrabold tracking-[0.04em] text-[#002060] dark:text-sky-300 uppercase whitespace-nowrap">
+              <div className="flex items-center gap-1 sm:gap-1.5 mt-1 font-sans text-[8px] sm:text-[9.5px] lg:text-[10.5px] font-extrabold tracking-[0.04em] text-blue-950 dark:text-sky-400 uppercase whitespace-nowrap">
                 <span>IT HARDWARE &amp; SOFTWARE</span>
                 <span className="text-slate-300 dark:text-slate-600 font-light px-0.5">|</span>
                 <span>CCTV &amp; SECURITY</span>
@@ -382,7 +382,7 @@ export default function Header() {
                 onClick={openAccountDrawer}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="flex items-center gap-2 rounded-full border border-slate-200/90 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-850 py-1.5 pr-3 pl-1.5 text-xs font-bold text-ink hover:border-brand-blue transition-all"
+                className="flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 py-1.5 pr-3 pl-1.5 text-xs font-bold text-slate-800 dark:text-slate-100 hover:border-blue-600 transition-all"
               >
                 <div className="flex size-6 items-center justify-center rounded-full bg-gradient-brand text-[10px] font-black text-white shadow-xs">
                   {(profile?.full_name?.[0] || user.email?.[0] || "U").toUpperCase()}
@@ -398,7 +398,7 @@ export default function Header() {
                 onClick={() => openAuthModal("signin")}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="flex items-center gap-1.5 rounded-full border border-slate-200/90 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-850 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-800 transition-all shadow-2xs"
+                className="flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-white dark:hover:bg-slate-700 transition-all shadow-2xs"
               >
                 <User className="size-3.5 stroke-[2] text-brand-blue" />
                 <span className="hidden md:inline font-bold">Sign In</span>
@@ -509,11 +509,11 @@ export default function Header() {
                           </ul>
                         </div>
                       ))}
-                      <div className="hidden rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200/90 dark:border-slate-800 p-5 lg:block">
+                      <div className="hidden rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 p-5 lg:block shadow-xs">
                         <p className="font-display text-base font-bold text-slate-900 dark:text-white">
                           Need custom advice?
                         </p>
-                        <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
                           Our in-house engineers spec components tailored to your workload.
                         </p>
                         <button

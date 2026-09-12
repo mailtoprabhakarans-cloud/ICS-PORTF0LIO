@@ -162,7 +162,7 @@ export default function AuthModal() {
                       COMPUTER STORE
                     </span>
                   </div>
-                  <p className="text-[9.5px] font-bold text-[#0c2340] uppercase tracking-[0.06em] mt-1 whitespace-nowrap">
+                  <p className="text-[9.5px] font-bold text-blue-950 dark:text-sky-400 uppercase tracking-[0.06em] mt-1 whitespace-nowrap">
                     IT HARDWARE &amp; SOFTWARE | CCTV &amp; SECURITY | NETWORKING
                   </p>
                 </div>
