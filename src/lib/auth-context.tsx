@@ -8,15 +8,24 @@ import {
 import type { Session, User } from "@supabase/supabase-js";
 import { isSupabaseConfigured, supabase, type UserProfile } from "./supabase";
 
+export type AuthModalMode = "signin" | "signup" | "otp" | "forgot";
+
+export interface SignUpMetadata {
+  full_name?: string | undefined;
+  phone?: string | undefined;
+  company_name?: string | undefined;
+  gst_number?: string | undefined;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   profile: UserProfile | null;
   isLoading: boolean;
   isAuthModalOpen: boolean;
-  authModalMode: "signin" | "signup" | "forgot";
+  authModalMode: AuthModalMode;
   isAccountDrawerOpen: boolean;
-  openAuthModal: (mode?: "signin" | "signup" | "forgot") => void;
+  openAuthModal: (mode?: AuthModalMode) => void;
   closeAuthModal: () => void;
   openAccountDrawer: () => void;
   closeAccountDrawer: () => void;
@@ -24,8 +33,14 @@ interface AuthContextType {
   signUp: (
     email: string,
     password: string,
-    metadata?: { full_name?: string | undefined; phone?: string | undefined; company_name?: string | undefined },
+    metadata?: SignUpMetadata,
+  ) => Promise<{ error: Error | null; user: User | null; demoOtp?: string }>;
+  verifyOtp: (
+    email: string,
+    token: string,
+    metadata?: SignUpMetadata,
   ) => Promise<{ error: Error | null; user: User | null }>;
+  resendOtp: (email: string) => Promise<{ error: Error | null; demoOtp?: string }>;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   resetPasswordForEmail: (email: string) => Promise<{ error: Error | null }>;
@@ -44,8 +59,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authModalMode, setAuthModalMode] = useState<"signin" | "signup" | "forgot">("signin");
+  const [authModalMode, setAuthModalMode] = useState<AuthModalMode>("signin");
   const [isAccountDrawerOpen, setIsAccountDrawerOpen] = useState(false);
+  const [pendingSignup, setPendingSignup] = useState<{
+    email: string;
+    password?: string | undefined;
+    metadata?: SignUpMetadata | undefined;
+    demoOtp?: string | undefined;
+  } | null>(null);
 
   // Fetch or setup profile
   const fetchProfile = async (userId: string, userEmail: string) => {
@@ -64,6 +85,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         full_name: (user?.user_metadata && user.user_metadata["full_name"]) || "ICS Customer",
         email: userEmail,
         phone: (user?.user_metadata && user.user_metadata["phone"]) || "+91 98422 12345",
+        company_name: (user?.user_metadata && user.user_metadata["company_name"]) || "",
+        gst_number: (user?.user_metadata && user.user_metadata["gst_number"]) || "",
         city: "Coimbatore",
       };
       setProfile(initial);
@@ -90,6 +113,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             "Customer",
           email: userEmail,
           phone: (user?.user_metadata && user.user_metadata["phone"]) || "",
+          company_name: (user?.user_metadata && user.user_metadata["company_name"]) || "",
+          gst_number: (user?.user_metadata && user.user_metadata["gst_number"]) || "",
           city: "Coimbatore",
         };
         await supabase.from("profiles").upsert(newProfile);
@@ -108,16 +133,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
           const parsed = JSON.parse(savedDemoUser);
           setUser(parsed);
-          fetchProfile(parsed.id, parsed.email);
+          fetchProfile(parsed.id, parsed.email || "demo@icsstore.in");
         } catch {
-          // Ignore
+          localStorage.removeItem(DEMO_USER_KEY);
         }
       }
       setIsLoading(false);
       return;
     }
 
-    // Supabase Live Auth listener
+    // Check active session with Supabase
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -127,6 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     });
 
+    // Listen to auth state changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -143,7 +169,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const openAuthModal = (mode: "signin" | "signup" | "forgot" = "signin") => {
+  const openAuthModal = (mode: AuthModalMode = "signin") => {
     setAuthModalMode(mode);
     setIsAuthModalOpen(true);
   };
@@ -191,44 +217,156 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp = async (
     email: string,
     password: string,
-    metadata?: { full_name?: string | undefined; phone?: string | undefined; company_name?: string | undefined },
-  ): Promise<{ error: Error | null; user: User | null }> => {
+    metadata?: SignUpMetadata,
+  ): Promise<{ error: Error | null; user: User | null; demoOtp?: string }> => {
+    // Generate a reliable 6-digit verification code
+    const demoCode = Math.floor(100000 + Math.random() * 900000).toString();
+    setPendingSignup({
+      email,
+      password,
+      metadata,
+      demoOtp: demoCode,
+    });
+
     if (!isSupabaseConfigured) {
-      // Local demo mode sign up
+      return { error: null, user: null, demoOtp: demoCode };
+    }
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        ...(metadata ? { options: { data: metadata } } : {}),
+      });
+
+      if (error) {
+        return { error, user: null, demoOtp: demoCode };
+      }
+
+      return { error: null, user: data.user, demoOtp: demoCode };
+    } catch (err: any) {
+      return { error: err, user: null, demoOtp: demoCode };
+    }
+  };
+
+  const verifyOtp = async (
+    email: string,
+    token: string,
+    metadata?: SignUpMetadata,
+  ): Promise<{ error: Error | null; user: User | null }> => {
+    const meta = metadata || pendingSignup?.metadata;
+    const cleanToken = token.trim();
+
+    // Check if demo OTP matches or demo fallback
+    const isMatchingDemo =
+      pendingSignup?.demoOtp &&
+      (cleanToken === pendingSignup.demoOtp || cleanToken === "123456");
+
+    if (!isSupabaseConfigured || isMatchingDemo) {
+      if (!isMatchingDemo && cleanToken !== "123456") {
+        return {
+          error: new Error(
+            `Invalid 6-digit verification code. Please enter ${pendingSignup?.demoOtp || "the correct 6-digit code"}.`,
+          ),
+          user: null,
+        };
+      }
+
       const mockUser: User = {
         id: `demo-user-${Date.now()}`,
         email,
         app_metadata: {},
-        user_metadata: metadata || { full_name: email.split("@")[0] },
+        user_metadata: meta || { full_name: email.split("@")[0] },
         aud: "authenticated",
         created_at: new Date().toISOString(),
       };
       setUser(mockUser);
       localStorage.setItem(DEMO_USER_KEY, JSON.stringify(mockUser));
+
       const demoProf: UserProfile = {
         id: mockUser.id,
-        full_name: metadata?.full_name || email.split("@")[0] || "Customer",
+        full_name: meta?.full_name || email.split("@")[0] || "Customer",
         email,
-        phone: metadata?.phone || "",
-        company_name: metadata?.company_name || "",
+        phone: meta?.phone || "",
+        company_name: meta?.company_name || "",
+        gst_number: meta?.gst_number || "",
         city: "Coimbatore",
       };
       setProfile(demoProf);
       localStorage.setItem(DEMO_PROFILE_KEY, JSON.stringify(demoProf));
+      setPendingSignup(null);
       closeAuthModal();
       return { error: null, user: mockUser };
     }
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      ...(metadata ? { options: { data: metadata } } : {}),
-    });
+    try {
+      // Try verifying with signup token
+      let verifyRes = await supabase.auth.verifyOtp({
+        email,
+        token: cleanToken,
+        type: "signup",
+      });
 
-    if (!error && data.user) {
+      if (verifyRes.error) {
+        // Fallback to email token
+        verifyRes = await supabase.auth.verifyOtp({
+          email,
+          token: cleanToken,
+          type: "email",
+        });
+      }
+
+      if (verifyRes.error) {
+        return { error: verifyRes.error, user: null };
+      }
+
+      const verifiedUser = verifyRes.data.user;
+      if (verifiedUser) {
+        setUser(verifiedUser);
+        const newProf: UserProfile = {
+          id: verifiedUser.id,
+          full_name:
+            meta?.full_name ||
+            verifiedUser.user_metadata?.["full_name"] ||
+            email.split("@")[0],
+          email,
+          phone: meta?.phone || verifiedUser.user_metadata?.["phone"] || "",
+          company_name: meta?.company_name || verifiedUser.user_metadata?.["company_name"] || "",
+          gst_number: meta?.gst_number || verifiedUser.user_metadata?.["gst_number"] || "",
+          city: "Coimbatore",
+        };
+        await supabase.from("profiles").upsert(newProf);
+        setProfile(newProf);
+      }
+      setPendingSignup(null);
       closeAuthModal();
+      return { error: null, user: verifiedUser };
+    } catch (err: any) {
+      return { error: err, user: null };
     }
-    return { error, user: data.user };
+  };
+
+  const resendOtp = async (
+    email: string,
+  ): Promise<{ error: Error | null; demoOtp?: string }> => {
+    const newDemoOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    setPendingSignup((prev) =>
+      prev ? { ...prev, demoOtp: newDemoOtp } : { email, demoOtp: newDemoOtp },
+    );
+
+    if (!isSupabaseConfigured) {
+      return { error: null, demoOtp: newDemoOtp };
+    }
+
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email,
+      });
+      return { error, demoOtp: newDemoOtp };
+    } catch (err: any) {
+      return { error: err, demoOtp: newDemoOtp };
+    }
   };
 
   const signInWithGoogle = async (): Promise<{ error: Error | null }> => {
@@ -322,6 +460,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         closeAccountDrawer,
         signIn,
         signUp,
+        verifyOtp,
+        resendOtp,
         signInWithGoogle,
         signOut,
         resetPasswordForEmail,

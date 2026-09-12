@@ -1,17 +1,21 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertCircle,
+  ArrowLeft,
+  ArrowRight,
   Building,
   CheckCircle2,
   Cpu,
   Eye,
   EyeOff,
-  Headphones,
   KeyRound,
   Lock,
   Mail,
+  MailCheck,
   Phone,
+  Receipt,
+  RotateCcw,
   ShieldCheck,
   Sparkles,
   Truck,
@@ -19,7 +23,7 @@ import {
   Wrench,
   X,
 } from "lucide-react";
-import { useAuth } from "@/lib/auth-context";
+import { useAuth, type AuthModalMode } from "@/lib/auth-context";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import IcsLogo from "../site/IcsLogo";
 import { toast } from "sonner";
@@ -32,11 +36,13 @@ export default function AuthModal() {
     closeAuthModal,
     signIn,
     signUp,
+    verifyOtp,
+    resendOtp,
     signInWithGoogle,
     resetPasswordForEmail,
   } = useAuth();
 
-  const [mode, setMode] = useState<"signin" | "signup" | "forgot">(authModalMode || "signin");
+  const [mode, setMode] = useState<AuthModalMode>(authModalMode || "signin");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -48,8 +54,102 @@ export default function AuthModal() {
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [companyName, setCompanyName] = useState("");
+  const [gstNumber, setGstNumber] = useState("");
+
+  // OTP State (6 Digits)
+  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
+  const [demoOtpCode, setDemoOtpCode] = useState<string | null>(null);
+  const [resendCountdown, setResendCountdown] = useState<number>(45);
+  const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Sync mode when authModalMode opens
+  useEffect(() => {
+    if (authModalMode) {
+      setMode(authModalMode);
+      setErrorMessage(null);
+      setSuccessMessage(null);
+    }
+  }, [authModalMode, isAuthModalOpen]);
+
+  // Countdown timer for OTP resend
+  useEffect(() => {
+    let timer: NodeJS.Timeout | undefined;
+    if (mode === "otp" && resendCountdown > 0) {
+      timer = setInterval(() => {
+        setResendCountdown((prev) => Math.max(0, prev - 1));
+      }, 1000);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [mode, resendCountdown]);
 
   if (!isAuthModalOpen) return null;
+
+  // Handle segmented OTP digit input
+  const handleOtpDigitChange = (index: number, val: string) => {
+    const digit = val.replace(/\D/g, "").slice(-1);
+    const newDigits = [...otpDigits];
+    newDigits[index] = digit;
+    setOtpDigits(newDigits);
+    setErrorMessage(null);
+
+    // Auto-advance to next box if digit entered
+    if (digit && index < 5) {
+      otpInputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && !otpDigits[index] && index > 0) {
+      otpInputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (!pasted) return;
+
+    const newDigits = [...otpDigits];
+    pasted.split("").forEach((ch, idx) => {
+      if (idx < 6) newDigits[idx] = ch;
+    });
+    setOtpDigits(newDigits);
+
+    const focusIndex = Math.min(pasted.length, 5);
+    otpInputRefs.current[focusIndex]?.focus();
+  };
+
+  const handleAutoFillDemoCode = () => {
+    if (demoOtpCode) {
+      setOtpDigits(demoOtpCode.split("").slice(0, 6));
+      toast.success("Demo code auto-filled!", { description: `OTP: ${demoOtpCode}` });
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (resendCountdown > 0 || loading) return;
+    setLoading(true);
+    setErrorMessage(null);
+    try {
+      const { error, demoOtp } = await resendOtp(email);
+      if (error) {
+        setErrorMessage(error.message);
+        toast.error("Failed to resend code", { description: error.message });
+      } else {
+        if (demoOtp) setDemoOtpCode(demoOtp);
+        setResendCountdown(45);
+        toast.success("New verification code sent!", {
+          description: `Check ${email} for your 6-digit OTP.`,
+        });
+      }
+    } catch (err: any) {
+      setErrorMessage(err.message || "Failed to resend code.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,26 +175,60 @@ export default function AuthModal() {
           return;
         }
 
-        const { error, user } = await signUp(email, password, {
+        // Validate optional GST format if provided
+        if (gstNumber.trim()) {
+          const cleanGst = gstNumber.trim().toUpperCase();
+          if (cleanGst.length < 15) {
+            setErrorMessage("GSTIN number must be 15 characters long.");
+            setLoading(false);
+            return;
+          }
+        }
+
+        const { error, demoOtp } = await signUp(email, password, {
           full_name: fullName,
           phone: phoneNumber,
           company_name: companyName,
+          gst_number: gstNumber.toUpperCase().trim(),
         });
 
         if (error) {
           setErrorMessage(error.message);
-          toast.error("Sign up failed", { description: error.message });
+          toast.error("Account registration failed", { description: error.message });
         } else {
-          if (!isSupabaseConfigured || user?.identities?.length !== 0) {
-            toast.success("Account created successfully!", {
-              description: "You are now signed in to ICS Computer Store.",
-            });
-          } else {
-            setSuccessMessage("Please check your email for the confirmation link to activate your account.");
-            toast.success("Verification email sent", {
-              description: "Please check your inbox to confirm your account.",
-            });
-          }
+          if (demoOtp) setDemoOtpCode(demoOtp);
+          setMode("otp");
+          setResendCountdown(45);
+          setOtpDigits(["", "", "", "", "", ""]);
+          toast.success("Verification code sent!", {
+            description: `Please enter the 6-digit OTP code sent to ${email}.`,
+          });
+          setTimeout(() => {
+            otpInputRefs.current[0]?.focus();
+          }, 200);
+        }
+      } else if (mode === "otp") {
+        const fullOtp = otpDigits.join("");
+        if (fullOtp.length < 6) {
+          setErrorMessage("Please enter the complete 6-digit verification code.");
+          setLoading(false);
+          return;
+        }
+
+        const { error } = await verifyOtp(email, fullOtp, {
+          full_name: fullName,
+          phone: phoneNumber,
+          company_name: companyName,
+          gst_number: gstNumber.toUpperCase().trim(),
+        });
+
+        if (error) {
+          setErrorMessage(error.message);
+          toast.error("Verification failed", { description: error.message });
+        } else {
+          toast.success("Email verified successfully!", {
+            description: `Welcome to ICS Computer Store, ${fullName || email}!`,
+          });
         }
       } else if (mode === "forgot") {
         const { error } = await resetPasswordForEmail(email);
@@ -123,28 +257,28 @@ export default function AuthModal() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={closeAuthModal}
-          className="fixed inset-0 bg-slate-900/40 backdrop-blur-md transition-all"
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-md transition-all"
         />
 
-        {/* Crisp Modern White/Light Card */}
+        {/* Crisp Modern White/Dark Card */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: "spring", damping: 26, stiffness: 300 }}
-          className="relative z-10 w-full max-w-4xl overflow-hidden rounded-[28px] border border-slate-200/80 bg-white text-slate-900 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.18)] grid md:grid-cols-12"
+          className="relative z-10 w-full max-w-4xl overflow-hidden rounded-[28px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xl grid md:grid-cols-12"
         >
           {/* Close button */}
           <button
             onClick={closeAuthModal}
             aria-label="Close modal"
-            className="absolute top-4 right-4 z-20 rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+            className="absolute top-4 right-4 z-20 rounded-full p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
           >
             <X className="size-5" />
           </button>
 
-          {/* LEFT HERO PANEL (Light Blue / Soft Slate Background) */}
-          <div className="relative hidden md:flex md:col-span-5 flex-col justify-between p-8 bg-gradient-to-b from-blue-50/70 via-slate-50 to-indigo-50/50 border-r border-slate-100 overflow-hidden">
+          {/* LEFT HERO PANEL */}
+          <div className="relative hidden md:flex md:col-span-5 flex-col justify-between p-8 bg-gradient-to-b from-blue-50/80 via-slate-50 to-indigo-50/60 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 border-r border-slate-200/80 dark:border-slate-800 overflow-hidden">
             {/* Ambient Soft Glows */}
             <div className="absolute top-0 left-0 -translate-x-12 -translate-y-12 size-56 rounded-full bg-blue-400/15 blur-3xl pointer-events-none" />
             <div className="absolute bottom-0 right-0 translate-x-12 translate-y-12 size-56 rounded-full bg-red-400/10 blur-3xl pointer-events-none" />
@@ -158,7 +292,7 @@ export default function AuthModal() {
                 <div>
                   <div className="flex items-baseline gap-1.5 leading-none">
                     <span className="font-display text-xl font-black text-red-600">ICS</span>
-                    <span className="font-display text-lg font-black text-slate-900 tracking-tight uppercase">
+                    <span className="font-display text-lg font-black text-slate-900 dark:text-white tracking-tight uppercase">
                       COMPUTER STORE
                     </span>
                   </div>
@@ -170,14 +304,14 @@ export default function AuthModal() {
 
               {/* Tagline */}
               <div>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-100/80 border border-blue-200 px-3 py-1 text-[11px] font-bold text-blue-700">
-                  <Sparkles className="size-3 text-blue-600" /> Customer Portal
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-100/90 dark:bg-blue-950/80 border border-blue-200 dark:border-blue-800 px-3 py-1 text-[11px] font-bold text-blue-700 dark:text-blue-300">
+                  <Sparkles className="size-3 text-blue-600 dark:text-blue-400" /> Customer &amp; B2B Portal
                 </span>
-                <h4 className="mt-3 font-display text-2xl font-black text-slate-900 leading-tight">
-                  High Performance Hardware & Engineering.
+                <h4 className="mt-3 font-display text-2xl font-black text-slate-900 dark:text-white leading-tight">
+                  High Performance Hardware &amp; Engineering.
                 </h4>
-                <p className="mt-2 text-xs text-slate-600 leading-relaxed">
-                  Sign in to track custom PC builds, live chip-level motherboard lab tickets, and B2B GST tax invoices.
+                <p className="mt-2 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Sign in to track custom PC builds, live chip-level motherboard lab tickets, and B2B GST tax invoices with 18% ITC credit.
                 </p>
               </div>
 
@@ -185,14 +319,19 @@ export default function AuthModal() {
               <div className="space-y-2.5 pt-1">
                 {[
                   {
+                    icon: Receipt,
+                    title: "B2B GST Tax Invoicing",
+                    desc: "Claim 18% Input Tax Credit (ITC) on all enterprise purchases.",
+                  },
+                  {
                     icon: Cpu,
-                    title: "PC Configurator Sync",
+                    title: "Custom PC Configurator Sync",
                     desc: "Save and reload high-TDP gaming & workstation rigs.",
                   },
                   {
                     icon: Truck,
                     title: "Live Order Milestone Tracking",
-                    desc: "From assembly QA stress tests to door delivery.",
+                    desc: "From assembly QA stress tests to door delivery in Coimbatore.",
                   },
                   {
                     icon: Wrench,
@@ -200,13 +339,16 @@ export default function AuthModal() {
                     desc: "Inspect live diagnostic stages & thermal reports.",
                   },
                 ].map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-3 rounded-2xl bg-white/80 border border-slate-200/60 p-3 shadow-xs">
-                    <div className="grid size-7 shrink-0 place-items-center rounded-lg bg-blue-100 text-blue-600">
+                  <div
+                    key={idx}
+                    className="flex items-start gap-3 rounded-2xl bg-white/90 dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700/60 p-3 shadow-xs"
+                  >
+                    <div className="grid size-7 shrink-0 place-items-center rounded-lg bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-400">
                       <item.icon className="size-4" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-slate-900">{item.title}</p>
-                      <p className="text-[11px] text-slate-500">{item.desc}</p>
+                      <p className="text-xs font-bold text-slate-900 dark:text-white">{item.title}</p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">{item.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -214,38 +356,42 @@ export default function AuthModal() {
             </div>
 
             {/* Bottom Trust Badge */}
-            <div className="relative z-10 pt-6 border-t border-slate-200/70 flex items-center justify-between text-[11.5px] text-slate-600 font-medium">
+            <div className="relative z-10 pt-6 border-t border-slate-200/70 dark:border-slate-800 flex items-center justify-between text-[11.5px] text-slate-600 dark:text-slate-400 font-medium">
               <span className="flex items-center gap-1.5">
-                <ShieldCheck className="size-4 text-emerald-600" /> 256-Bit SSL Auth
+                <ShieldCheck className="size-4 text-emerald-600 dark:text-emerald-400" /> 256-Bit SSL Auth
               </span>
-              <span className="text-slate-400 font-bold">EST. 2007</span>
+              <span className="text-slate-400 dark:text-slate-500 font-bold">EST. 2007</span>
             </div>
           </div>
 
-          {/* RIGHT AUTH INTERACTION PANEL (Crisp White Form) */}
-          <div className="md:col-span-7 flex flex-col justify-center p-6 sm:p-9 bg-white">
+          {/* RIGHT AUTH INTERACTION PANEL */}
+          <div className="md:col-span-7 flex flex-col justify-center p-6 sm:p-9 bg-white dark:bg-slate-900 max-h-[90vh] overflow-y-auto">
             {/* Header with segmented switch */}
             <div className="space-y-4">
               <div>
-                <h3 className="font-display text-2xl sm:text-3xl font-black text-slate-900">
+                <h3 className="font-display text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
                   {mode === "signin"
                     ? "Welcome Back"
                     : mode === "signup"
-                      ? "Create Your Account"
-                      : "Reset Password"}
+                      ? "Create Business / User Account"
+                      : mode === "otp"
+                        ? "Verify Email Address"
+                        : "Reset Password"}
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
                   {mode === "signin"
                     ? "Enter your credentials or continue with Google to access your dashboard."
                     : mode === "signup"
-                      ? "Join ICS Computer Store for exclusive hardware pricing & order tracking."
-                      : "Enter your registered email to receive a password reset link."}
+                      ? "Join ICS Computer Store for exclusive hardware pricing, GST invoicing & order tracking."
+                      : mode === "otp"
+                        ? `Enter the 6-digit OTP sent to ${email} to verify and activate your account.`
+                        : "Enter your registered email to receive a password reset link."}
                 </p>
               </div>
 
-              {/* Sleek Light Segmented Switch Tabs */}
-              {mode !== "forgot" && (
-                <div className="flex rounded-2xl bg-slate-100 p-1 border border-slate-200/70">
+              {/* Segmented Switch Tabs (Sign In vs Sign Up) */}
+              {mode !== "forgot" && mode !== "otp" && (
+                <div className="flex rounded-2xl bg-slate-100 dark:bg-slate-800 p-1 border border-slate-200/70 dark:border-slate-700">
                   <button
                     type="button"
                     onClick={() => {
@@ -255,8 +401,8 @@ export default function AuthModal() {
                     }}
                     className={`flex-1 rounded-xl py-2.5 text-xs font-bold transition-all duration-200 ${
                       mode === "signin"
-                        ? "bg-white text-blue-600 shadow-sm border border-slate-200/50"
-                        : "text-slate-600 hover:text-slate-900"
+                        ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm border border-slate-200/50 dark:border-slate-700"
+                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                     }`}
                   >
                     Sign In
@@ -270,8 +416,8 @@ export default function AuthModal() {
                     }}
                     className={`flex-1 rounded-xl py-2.5 text-xs font-bold transition-all duration-200 ${
                       mode === "signup"
-                        ? "bg-white text-blue-600 shadow-sm border border-slate-200/50"
-                        : "text-slate-600 hover:text-slate-900"
+                        ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm border border-slate-200/50 dark:border-slate-700"
+                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                     }`}
                   >
                     Create Account
@@ -280,16 +426,16 @@ export default function AuthModal() {
               )}
             </div>
 
-            {/* Form */}
+            {/* Main Form */}
             <form onSubmit={handleSubmit} className="mt-5 space-y-4">
               {/* Error / Success Alerts */}
               {errorMessage && (
                 <motion.div
                   initial={{ opacity: 0, y: -6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-2.5 rounded-2xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700 font-medium"
+                  className="flex items-center gap-2.5 rounded-2xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/40 p-3.5 text-xs text-red-700 dark:text-red-300 font-medium"
                 >
-                  <AlertCircle className="size-4.5 shrink-0 text-red-600" />
+                  <AlertCircle className="size-4.5 shrink-0 text-red-600 dark:text-red-400" />
                   <span>{errorMessage}</span>
                 </motion.div>
               )}
@@ -298,131 +444,327 @@ export default function AuthModal() {
                 <motion.div
                   initial={{ opacity: 0, y: -6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50 p-3.5 text-xs text-emerald-700 font-medium"
+                  className="flex items-center gap-2.5 rounded-2xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/40 p-3.5 text-xs text-emerald-700 dark:text-emerald-300 font-medium"
                 >
-                  <CheckCircle2 className="size-4.5 shrink-0 text-emerald-600" />
+                  <CheckCircle2 className="size-4.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
                   <span>{successMessage}</span>
                 </motion.div>
               )}
 
-              {/* Sign Up Fields */}
+              {/* MODE: SIGN UP (Full Name, Phone, Company, GST, Email, Password) */}
               {mode === "signup" && (
                 <>
                   <div>
-                    <label className="mb-1.5 block text-[11px] font-bold tracking-wider text-slate-600 uppercase">
-                      Full Name
+                    <label className="mb-1.5 block text-[11px] font-bold tracking-wider text-slate-600 dark:text-slate-300 uppercase">
+                      Full Name *
                     </label>
-                    <div className="flex items-center rounded-2xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-sm transition-all focus-within:border-blue-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-600/15">
-                      <User className="size-4.5 text-slate-400 mr-3" />
+                    <div className="flex items-center rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/70 px-4 py-3 text-sm transition-all focus-within:border-blue-600 focus-within:bg-white dark:focus-within:bg-slate-900 focus-within:ring-2 focus-within:ring-blue-600/15">
+                      <User className="size-4.5 text-slate-400 mr-3 shrink-0" />
                       <input
                         required
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
                         placeholder="e.g. Ramesh Kumar"
-                        className="w-full bg-transparent text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 outline-none font-medium"
+                        className="w-full bg-transparent text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none font-medium"
                       />
                     </div>
                   </div>
 
+                  <div>
+                    <label className="mb-1.5 block text-[11px] font-bold tracking-wider text-slate-600 dark:text-slate-300 uppercase">
+                      Phone Number *
+                    </label>
+                    <div className="flex items-center rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/70 px-4 py-3 text-sm transition-all focus-within:border-blue-600 focus-within:bg-white dark:focus-within:bg-slate-900 focus-within:ring-2 focus-within:ring-blue-600/15">
+                      <Phone className="size-4 text-slate-400 mr-2.5 shrink-0" />
+                      <input
+                        required
+                        type="tel"
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        placeholder="+91 98422 12345"
+                        className="w-full bg-transparent text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Company Name & GST Section */}
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div>
-                      <label className="mb-1.5 block text-[11px] font-bold tracking-wider text-slate-600 uppercase">
-                        Phone Number
-                      </label>
-                      <div className="flex items-center rounded-2xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-sm transition-all focus-within:border-blue-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-600/15">
-                        <Phone className="size-4 text-slate-400 mr-2.5" />
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-[11px] font-bold tracking-wider text-slate-600 dark:text-slate-300 uppercase">
+                          Company Name
+                        </label>
+                        <span className="text-[9.5px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.5 rounded">
+                          B2B Invoicing
+                        </span>
+                      </div>
+                      <div className="flex items-center rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/70 px-4 py-3 text-sm transition-all focus-within:border-blue-600 focus-within:bg-white dark:focus-within:bg-slate-900 focus-within:ring-2 focus-within:ring-blue-600/15">
+                        <Building className="size-4 text-slate-400 mr-2.5 shrink-0" />
                         <input
-                          required
-                          type="tel"
-                          value={phoneNumber}
-                          onChange={(e) => setPhoneNumber(e.target.value)}
-                          placeholder="+91 98422 12345"
-                          className="w-full bg-transparent text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 outline-none font-medium"
+                          value={companyName}
+                          onChange={(e) => setCompanyName(e.target.value)}
+                          placeholder="Acme Tech / Studio"
+                          className="w-full bg-transparent text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none font-medium"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="mb-1.5 block text-[11px] font-bold tracking-wider text-slate-600 uppercase">
-                        Company (Optional)
-                      </label>
-                      <div className="flex items-center rounded-2xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-sm transition-all focus-within:border-blue-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-600/15">
-                        <Building className="size-4 text-slate-400 mr-2.5" />
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-[11px] font-bold tracking-wider text-slate-600 dark:text-slate-300 uppercase">
+                          GST Number
+                        </label>
+                        <span className="text-[9.5px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded">
+                          18% ITC Credit
+                        </span>
+                      </div>
+                      <div className="flex items-center rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/70 px-4 py-3 text-sm transition-all focus-within:border-blue-600 focus-within:bg-white dark:focus-within:bg-slate-900 focus-within:ring-2 focus-within:ring-blue-600/15">
+                        <Receipt className="size-4 text-slate-400 mr-2.5 shrink-0" />
                         <input
-                          value={companyName}
-                          onChange={(e) => setCompanyName(e.target.value)}
-                          placeholder="Enterprise / GST"
-                          className="w-full bg-transparent text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 outline-none font-medium"
+                          maxLength={15}
+                          value={gstNumber}
+                          onChange={(e) => setGstNumber(e.target.value.toUpperCase())}
+                          placeholder="33AAAAA0000A1Z5"
+                          className="w-full bg-transparent text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none font-mono font-medium tracking-wide uppercase"
                         />
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Email Field with OTP Notice */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-[11px] font-bold tracking-wider text-slate-600 dark:text-slate-300 uppercase">
+                        Email Address *
+                      </label>
+                      <span className="text-[9.5px] text-slate-500 dark:text-slate-400 font-medium">
+                        OTP code will be sent here
+                      </span>
+                    </div>
+                    <div className="flex items-center rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/70 px-4 py-3 text-sm transition-all focus-within:border-blue-600 focus-within:bg-white dark:focus-within:bg-slate-900 focus-within:ring-2 focus-within:ring-blue-600/15">
+                      <Mail className="size-4.5 text-slate-400 mr-3 shrink-0" />
+                      <input
+                        required
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="name@company.com"
+                        className="w-full bg-transparent text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Password Field */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-[11px] font-bold tracking-wider text-slate-600 dark:text-slate-300 uppercase">
+                        Password *
+                      </label>
+                      <span className="text-[9.5px] text-slate-500 dark:text-slate-400">
+                        Min. 6 characters
+                      </span>
+                    </div>
+                    <div className="flex items-center rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/70 px-4 py-3 text-sm transition-all focus-within:border-blue-600 focus-within:bg-white dark:focus-within:bg-slate-900 focus-within:ring-2 focus-within:ring-blue-600/15">
+                      <Lock className="size-4.5 text-slate-400 mr-3 shrink-0" />
+                      <input
+                        required
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                        className="w-full bg-transparent text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none font-medium"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((v) => !v)}
+                        className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="size-4.5" /> : <Eye className="size-4.5" />}
+                      </button>
                     </div>
                   </div>
                 </>
               )}
 
-              {/* Email Field */}
-              <div>
-                <label className="mb-1.5 block text-[11px] font-bold tracking-wider text-slate-600 uppercase">
-                  Email Address
-                </label>
-                <div className="flex items-center rounded-2xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-sm transition-all focus-within:border-blue-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-600/15">
-                  <Mail className="size-4.5 text-slate-400 mr-3" />
-                  <input
-                    required
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@company.com"
-                    className="w-full bg-transparent text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 outline-none font-medium"
-                  />
-                </div>
-              </div>
-
-              {/* Password Field */}
-              {mode !== "forgot" && (
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-[11px] font-bold tracking-wider text-slate-600 uppercase">
-                      Password
+              {/* MODE: SIGN IN */}
+              {mode === "signin" && (
+                <>
+                  <div>
+                    <label className="mb-1.5 block text-[11px] font-bold tracking-wider text-slate-600 dark:text-slate-300 uppercase">
+                      Email Address
                     </label>
-                    {mode === "signin" && (
+                    <div className="flex items-center rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/70 px-4 py-3 text-sm transition-all focus-within:border-blue-600 focus-within:bg-white dark:focus-within:bg-slate-900 focus-within:ring-2 focus-within:ring-blue-600/15">
+                      <Mail className="size-4.5 text-slate-400 mr-3 shrink-0" />
+                      <input
+                        required
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="name@company.com"
+                        className="w-full bg-transparent text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-[11px] font-bold tracking-wider text-slate-600 dark:text-slate-300 uppercase">
+                        Password
+                      </label>
                       <button
                         type="button"
                         onClick={() => setMode("forgot")}
-                        className="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                        className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline transition-colors"
                       >
                         Forgot password?
                       </button>
-                    )}
+                    </div>
+                    <div className="flex items-center rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/70 px-4 py-3 text-sm transition-all focus-within:border-blue-600 focus-within:bg-white dark:focus-within:bg-slate-900 focus-within:ring-2 focus-within:ring-blue-600/15">
+                      <Lock className="size-4.5 text-slate-400 mr-3 shrink-0" />
+                      <input
+                        required
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                        className="w-full bg-transparent text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none font-medium"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((v) => !v)}
+                        className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="size-4.5" /> : <Eye className="size-4.5" />}
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center rounded-2xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-sm transition-all focus-within:border-blue-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-600/15">
-                    <Lock className="size-4.5 text-slate-400 mr-3" />
-                    <input
-                      required
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full bg-transparent text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 outline-none font-medium"
-                    />
+                </>
+              )}
+
+              {/* MODE: EMAIL OTP VERIFICATION */}
+              {mode === "otp" && (
+                <div className="space-y-5 py-2">
+                  <div className="rounded-2xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-900/50 p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="grid size-10 place-items-center rounded-xl bg-blue-600 text-white shrink-0 shadow-sm">
+                        <MailCheck className="size-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-slate-900 dark:text-white">
+                          Email Confirmation Sent
+                        </p>
+                        <p className="text-xs text-slate-600 dark:text-slate-300 truncate">
+                          Enter 6-digit code sent to <strong className="text-blue-600 dark:text-blue-400">{email}</strong>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 6-Digit Segmented OTP Input */}
+                  <div>
+                    <label className="mb-2 block text-center text-xs font-bold tracking-wider text-slate-600 dark:text-slate-300 uppercase">
+                      Enter 6-Digit OTP Code
+                    </label>
+                    <div className="flex items-center justify-center gap-2 sm:gap-3">
+                      {otpDigits.map((digit, idx) => (
+                        <input
+                          key={idx}
+                          ref={(el) => {
+                            otpInputRefs.current[idx] = el;
+                          }}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) => handleOtpDigitChange(idx, e.target.value)}
+                          onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                          onPaste={idx === 0 ? handleOtpPaste : undefined}
+                          className="size-11 sm:size-13 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-center font-mono text-xl sm:text-2xl font-black text-slate-900 dark:text-white outline-none transition-all focus:border-blue-600 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-blue-600/15"
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Demo Helper Banner (If simulated OTP is active) */}
+                  {demoOtpCode && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.96 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="flex items-center justify-between rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 px-3.5 py-2.5 text-xs text-amber-900 dark:text-amber-300"
+                    >
+                      <span className="font-medium">
+                        Demo Verification Code: <strong className="font-mono text-sm tracking-widest">{demoOtpCode}</strong>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleAutoFillDemoCode}
+                        className="rounded-lg bg-amber-200/80 dark:bg-amber-800/60 hover:bg-amber-300 dark:hover:bg-amber-700/80 px-2.5 py-1 text-[11px] font-bold text-amber-950 dark:text-amber-100 transition-colors"
+                      >
+                        Auto-Fill
+                      </button>
+                    </motion.div>
+                  )}
+
+                  {/* Resend OTP & Change Email Controls */}
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-1 text-xs">
                     <button
                       type="button"
-                      onClick={() => setShowPassword((v) => !v)}
-                      className="text-slate-400 hover:text-slate-700 transition-colors"
+                      onClick={() => {
+                        setMode("signup");
+                        setErrorMessage(null);
+                      }}
+                      className="inline-flex items-center gap-1.5 font-semibold text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                     >
-                      {showPassword ? <EyeOff className="size-4.5" /> : <Eye className="size-4.5" />}
+                      <ArrowLeft className="size-3.5" /> Change Email / Edit Info
                     </button>
+
+                    <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+                      {resendCountdown > 0 ? (
+                        <span>
+                          Resend code in <strong className="text-slate-800 dark:text-slate-200 font-bold">{resendCountdown}s</strong>
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={loading}
+                          onClick={handleResendOtp}
+                          className="font-bold text-blue-600 dark:text-blue-400 hover:underline transition-all flex items-center gap-1"
+                        >
+                          <RotateCcw className="size-3.5" /> Resend OTP Code
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
 
-              {/* Primary Submit Button (Gradient Blue-Indigo) */}
+              {/* MODE: FORGOT PASSWORD */}
+              {mode === "forgot" && (
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-bold tracking-wider text-slate-600 dark:text-slate-300 uppercase">
+                    Registered Email Address
+                  </label>
+                  <div className="flex items-center rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/70 px-4 py-3 text-sm transition-all focus-within:border-blue-600 focus-within:bg-white dark:focus-within:bg-slate-900 focus-within:ring-2 focus-within:ring-blue-600/15">
+                    <Mail className="size-4.5 text-slate-400 mr-3 shrink-0" />
+                    <input
+                      required
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="name@company.com"
+                      className="w-full bg-transparent text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none font-medium"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Primary Submit Button */}
               <motion.button
                 type="submit"
                 disabled={loading}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
-                className="mt-2 flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 py-3.5 text-sm font-bold text-white shadow-md shadow-blue-600/20 transition-all disabled:opacity-50"
+                className="mt-3 flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 py-3.5 text-sm font-bold text-white shadow-md shadow-blue-600/20 transition-all disabled:opacity-50 cursor-pointer"
               >
                 {loading ? (
                   <div className="size-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -432,7 +774,11 @@ export default function AuthModal() {
                   </>
                 ) : mode === "signup" ? (
                   <>
-                    <ShieldCheck className="size-4" /> Create ICS Account
+                    <MailCheck className="size-4" /> Create Account &amp; Verify Email OTP
+                  </>
+                ) : mode === "otp" ? (
+                  <>
+                    <ShieldCheck className="size-4" /> Verify Email &amp; Activate Account
                   </>
                 ) : (
                   <>
@@ -441,15 +787,15 @@ export default function AuthModal() {
                 )}
               </motion.button>
 
-              {/* Google Single Sign-On Button */}
-              {mode !== "forgot" && (
+              {/* Google Single Sign-On Button (Available in signin & signup) */}
+              {(mode === "signin" || mode === "signup") && (
                 <>
                   <div className="relative my-4 flex items-center justify-center">
-                    <div className="w-full border-t border-slate-200" />
-                    <span className="bg-white px-3 text-[10.5px] font-bold text-slate-400 uppercase tracking-wider">
+                    <div className="w-full border-t border-slate-200 dark:border-slate-800" />
+                    <span className="bg-white dark:bg-slate-900 px-3 text-[10.5px] font-bold text-slate-400 uppercase tracking-wider">
                       Or continue with
                     </span>
-                    <div className="w-full border-t border-slate-200" />
+                    <div className="w-full border-t border-slate-200 dark:border-slate-800" />
                   </div>
 
                   <motion.button
@@ -467,7 +813,7 @@ export default function AuthModal() {
                     disabled={loading}
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.99 }}
-                    className="flex w-full items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 py-3 text-xs sm:text-sm font-bold text-slate-700 shadow-xs transition-all hover:border-slate-300"
+                    className="flex w-full items-center justify-center gap-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 hover:bg-slate-50 dark:hover:bg-slate-800 py-3 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 shadow-xs transition-all hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer"
                   >
                     <svg className="size-4.5" viewBox="0 0 24 24">
                       <path
@@ -492,15 +838,18 @@ export default function AuthModal() {
                 </>
               )}
 
-              {/* Forgot password return link */}
-              {mode === "forgot" && (
+              {/* Back to Sign In link */}
+              {(mode === "forgot" || mode === "otp") && (
                 <div className="text-center pt-2">
                   <button
                     type="button"
-                    onClick={() => setMode("signin")}
-                    className="text-xs font-semibold text-blue-600 hover:underline"
+                    onClick={() => {
+                      setMode("signin");
+                      setErrorMessage(null);
+                    }}
+                    className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"
                   >
-                    ← Back to Sign In
+                    <ArrowLeft className="size-3.5" /> Back to Sign In
                   </button>
                 </div>
               )}
