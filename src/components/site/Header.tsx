@@ -159,7 +159,7 @@ export default function Header() {
             : "border-b border-border/40 bg-card/85 backdrop-blur-lg"
         }`}
       >
-        <div className="mx-auto flex max-w-[1800px] items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6 lg:px-12 2xl:px-16 py-2.5 sm:py-3.5">
+        <div className="mx-auto flex max-w-[1800px] items-center justify-between gap-3 sm:gap-6 px-3 sm:px-6 lg:px-12 2xl:px-16 py-2.5 sm:py-3.5">
           {/* Logo & Brand Name */}
           <a
             href="#top"
@@ -170,60 +170,64 @@ export default function Header() {
               transition={{ type: "spring", stiffness: 320 }}
               className="shrink-0 drop-shadow-sm"
             >
-              <IcsLogo className="size-11 sm:size-13 lg:size-14" />
+              <IcsLogo className="size-11 sm:size-12 lg:size-[48px]" />
             </motion.div>
-            <div className="flex flex-col justify-center leading-none shrink-0">
-              <div className="flex items-baseline gap-1.5 sm:gap-2">
-                <span className="font-display text-xl sm:text-2xl lg:text-[26px] font-black tracking-tight text-red-600 dark:text-red-500">
+            <div className="flex flex-col justify-center shrink-0">
+              <div className="flex items-baseline gap-1.5 sm:gap-2 leading-none">
+                <span className="font-display text-xl sm:text-2xl lg:text-[25px] font-black tracking-tight text-red-600 dark:text-red-500">
                   ICS
                 </span>
-                <span className="font-display text-lg sm:text-2xl lg:text-[25px] font-black tracking-tight text-slate-900 dark:text-white uppercase">
+                <span className="font-display text-lg sm:text-2xl lg:text-[24px] font-black tracking-tight text-slate-900 dark:text-white uppercase">
                   COMPUTER STORE
                 </span>
               </div>
-              <div className="flex items-center gap-1 sm:gap-1.5 mt-1 sm:mt-1.5 text-[7.5px] sm:text-[9.5px] lg:text-[11px] font-bold tracking-[0.04em] sm:tracking-[0.08em] lg:tracking-[0.11em] text-[#0c2340] dark:text-blue-300 uppercase whitespace-nowrap">
+              <div className="flex items-center gap-1 sm:gap-1.5 mt-1 sm:mt-1.5 text-[7.5px] sm:text-[9px] lg:text-[10px] font-bold tracking-[0.04em] sm:tracking-[0.08em] text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
                 <span>IT HARDWARE &amp; SOFTWARE</span>
-                <span className="text-slate-400 dark:text-slate-500 font-normal px-0.5">|</span>
+                <span className="text-slate-300 dark:text-slate-700 font-light px-0.5">|</span>
                 <span>CCTV &amp; SECURITY</span>
-                <span className="text-slate-400 dark:text-slate-500 font-normal px-0.5">|</span>
+                <span className="text-slate-300 dark:text-slate-700 font-light px-0.5">|</span>
                 <span>NETWORKING</span>
               </div>
             </div>
           </a>
 
           {/* Interactive Live Search Bar (Desktop) */}
-          <div className="relative mx-auto hidden max-w-2xl flex-1 items-center px-4 lg:flex">
+          <div className="relative mx-3 hidden max-w-xl flex-1 items-center xl:max-w-2xl lg:flex">
             <div
-              className={`flex w-full items-center overflow-hidden rounded-xl border transition-all duration-300 ${
+              className={`flex w-full items-center rounded-full border transition-all duration-200 ${
                 searchFocused
-                  ? "border-brand-blue ring-2 ring-brand-blue/20 bg-card shadow-sm"
-                  : "border-border/70 bg-surface/80 hover:border-border"
+                  ? "border-brand-blue ring-4 ring-brand-blue/15 bg-white dark:bg-slate-950 shadow-sm"
+                  : "border-slate-200/90 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/60 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-900"
               }`}
             >
-              <input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => setSearchFocused(true)}
-                onBlur={() => setTimeout(() => setSearchFocused(false), 250)}
-                className="flex-1 bg-transparent px-4 py-2.5 text-sm sm:text-base text-ink outline-none placeholder:text-muted-foreground/80 font-normal"
-                placeholder="Search RTX 5070 Ti, Ryzen 7, Hikvision 4K, Cat6, RAM..."
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  aria-label="Clear search"
-                  className="text-muted-foreground hover:text-ink px-2 transition-colors"
-                >
-                  <X className="size-4" />
-                </button>
-              )}
-              <button
-                type="button"
-                aria-label="Search"
-                className="flex h-11 w-12 items-center justify-center bg-blue-600 hover:bg-blue-700 text-white transition-colors"
-              >
-                <Search className="size-5" />
-              </button>
+              <div className="flex items-center gap-2.5 flex-1 px-4 py-2 sm:py-2.5">
+                <Search
+                  className={`size-4 shrink-0 transition-colors ${
+                    searchFocused ? "text-brand-blue" : "text-slate-400 dark:text-slate-500"
+                  }`}
+                />
+                <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setSearchFocused(true)}
+                  onBlur={() => setTimeout(() => setSearchFocused(false), 250)}
+                  className="flex-1 bg-transparent text-xs sm:text-sm text-ink outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500 font-medium"
+                  placeholder="Search RTX 50-Series, Ryzen, Laptops, 4K CCTV, Networking..."
+                />
+                {searchQuery ? (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    aria-label="Clear search"
+                    className="text-slate-400 hover:text-ink transition-colors p-0.5"
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                ) : (
+                  <kbd className="hidden xl:inline-flex items-center rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-semibold text-slate-400 select-none shadow-2xs">
+                    Ctrl K
+                  </kbd>
+                )}
+              </div>
             </div>
 
             {/* Live Autocomplete Dropdown */}
@@ -250,12 +254,12 @@ export default function Header() {
                           setQuickViewProduct(prod);
                           setSearchQuery("");
                         }}
-                        className="flex cursor-pointer items-center justify-between rounded-xl p-2.5 transition-all hover:bg-accent/50 hover:shadow-sm"
+                        className="flex cursor-pointer items-center justify-between gap-3 rounded-xl p-2.5 transition-colors hover:bg-accent/60"
                       >
-                        <div>
+                        <div className="flex flex-col gap-0.5">
                           <div className="flex items-center gap-2">
-                            <span className="rounded bg-accent px-1.5 py-0.5 text-[10px] font-bold text-brand-blue uppercase">
-                              {prod.brand}
+                            <span className="rounded bg-brand-blue/10 px-1.5 py-0.5 text-[10px] font-bold text-brand-blue uppercase">
+                              {prod.category}
                             </span>
                             <span className="text-sm font-semibold text-ink">{prod.name}</span>
                           </div>
@@ -275,124 +279,119 @@ export default function Header() {
           </div>
 
           {/* Action Icons Right Section */}
-          <div className="flex items-center gap-1 sm:gap-2 lg:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* Theme Toggle (Circular & Minimal) */}
+            <motion.button
+              onClick={toggleTheme}
+              aria-label="Toggle Light and Dark Mode"
+              whileHover={{ scale: 1.06 }}
+              whileTap={{ scale: 0.94 }}
+              title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              className="flex size-9 sm:size-10 items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+            >
+              {theme === "dark" ? (
+                <Sun className="size-4 sm:size-4.5 text-amber-400 fill-amber-400/20" />
+              ) : (
+                <Moon className="size-4 sm:size-4.5 text-slate-700 dark:text-slate-300" />
+              )}
+            </motion.button>
+
             {/* Wishlist */}
             <motion.button
               aria-label="Wishlist"
               title="View Wishlist"
               onClick={() => setIsWishlistOpen(true)}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="relative rounded-full p-2 sm:p-2.5 text-slate-800 dark:text-slate-100 hover:bg-accent hover:text-brand-blue transition-colors"
+              whileHover={{ scale: 1.06 }}
+              whileTap={{ scale: 0.94 }}
+              className="relative flex size-9 sm:size-10 items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-red-500 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
             >
-              <Heart className="size-5 sm:size-5.5 stroke-[1.8]" />
+              <Heart className="size-4.5 stroke-[1.8]" />
               {wishlist.length > 0 && (
-                <span className="absolute top-0 right-0 sm:top-0.5 sm:right-0.5 grid size-4 sm:size-4.5 place-items-center rounded-full bg-brand-red text-[9px] sm:text-[10px] font-bold text-white shadow-sm">
+                <span className="absolute top-1 right-1 flex size-4 items-center justify-center rounded-full bg-red-600 text-[9px] font-black text-white ring-2 ring-white dark:ring-slate-900">
                   {wishlist.length}
                 </span>
               )}
             </motion.button>
 
-            {/* User Account Button */}
-            {user ? (
-              <motion.button
-                aria-label="Account"
-                title={`Logged in as ${profile?.full_name || user.email}`}
-                onClick={openAccountDrawer}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-2 rounded-full border border-border/80 bg-surface px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-bold text-ink shadow-xs transition-all hover:border-brand-blue hover:bg-accent"
-              >
-                <div className="grid size-5 sm:size-6 place-items-center rounded-full bg-gradient-brand text-[10px] sm:text-xs font-bold text-white shadow-xs">
-                  {(profile?.full_name?.[0] || user.email?.[0] || "U").toUpperCase()}
-                </div>
-                <span className="hidden md:inline max-w-[90px] truncate">
-                  {profile?.full_name?.split(" ")[0] || "Account"}
-                </span>
-              </motion.button>
-            ) : (
-              <motion.button
-                aria-label="Sign In / Register"
-                title="Sign In or Create Account"
-                onClick={() => openAuthModal("signin")}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-1.5 rounded-full border border-border/80 bg-surface px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-semibold text-slate-800 dark:text-slate-100 shadow-xs transition-all hover:border-brand-blue hover:text-brand-blue hover:bg-accent"
-              >
-                <User className="size-4 sm:size-4.5 stroke-[2] text-brand-blue" />
-                <span className="hidden md:inline font-bold">Sign In</span>
-              </motion.button>
-            )}
-
-            {/* Compare (Hidden on small mobile) */}
+            {/* Compare (Desktop) */}
             <motion.button
               aria-label="Compare"
-              title="Compare Components"
+              title="Compare Products"
               onClick={() => setIsCompareOpen(true)}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="hidden md:inline-flex relative rounded-full p-2.5 text-slate-800 dark:text-slate-100 hover:bg-accent hover:text-brand-blue transition-colors"
+              whileHover={{ scale: 1.06 }}
+              whileTap={{ scale: 0.94 }}
+              className="hidden md:flex relative size-9 sm:size-10 items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-brand-blue transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
             >
-              <GitCompareArrows className="size-5.5 stroke-[1.8]" />
+              <GitCompareArrows className="size-4.5 stroke-[1.8]" />
               {compareList.length > 0 && (
-                <span className="absolute top-0.5 right-0.5 grid size-4.5 place-items-center rounded-full bg-brand-blue text-[10px] font-bold text-white shadow-sm">
+                <span className="absolute top-1 right-1 flex size-4 items-center justify-center rounded-full bg-brand-blue text-[9px] font-black text-white ring-2 ring-white dark:ring-slate-900">
                   {compareList.length}
                 </span>
               )}
             </motion.button>
 
-            {/* Cart with Red Notification Badge */}
+            {/* Cart with Badge */}
             <motion.button
               aria-label="Cart"
-              title="View Cart"
+              title="Shopping Cart"
               onClick={() => setIsCartOpen(true)}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="relative rounded-full p-2 sm:p-2.5 text-slate-800 dark:text-slate-100 hover:bg-accent hover:text-brand-blue transition-colors"
+              whileHover={{ scale: 1.06 }}
+              whileTap={{ scale: 0.94 }}
+              className="relative flex size-9 sm:size-10 items-center justify-center rounded-full text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
             >
-              <ShoppingCart className="size-5 sm:size-5.5 stroke-[1.8]" />
+              <ShoppingCart className="size-4.5 stroke-[1.8]" />
               {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 grid size-4.5 sm:size-5 place-items-center rounded-full bg-red-600 text-[10px] sm:text-[11px] font-extrabold text-white shadow-md animate-pulse-subtle">
+                <span className="absolute -top-0.5 -right-0.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-black text-white ring-2 ring-white dark:ring-slate-900 shadow-xs animate-pulse-subtle">
                   {cartCount}
                 </span>
               )}
             </motion.button>
 
-            {/* Extra Light and Dark Mode Switch Pill Button */}
-            <motion.button
-              onClick={toggleTheme}
-              aria-label="Toggle Light and Dark Mode"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
-              className="flex items-center gap-1 sm:gap-1.5 rounded-full border border-border/80 bg-surface px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-semibold text-ink shadow-xs transition-all hover:border-brand-blue hover:bg-accent"
-            >
-              {theme === "dark" ? (
-                <>
-                  <Sun className="size-3.5 sm:size-4 text-amber-400 fill-amber-400" />
-                  <span className="hidden md:inline font-bold">Light</span>
-                </>
-              ) : (
-                <>
-                  <Moon className="size-3.5 sm:size-4 text-indigo-600 fill-indigo-600 dark:text-indigo-400" />
-                  <span className="hidden md:inline font-bold">Dark</span>
-                </>
-              )}
-            </motion.button>
+            {/* User Account / Sign In */}
+            {user ? (
+              <motion.button
+                aria-label="Account"
+                title={`Logged in as ${profile?.full_name || user.email}`}
+                onClick={openAccountDrawer}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="flex items-center gap-2 rounded-full border border-slate-200/90 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-850 py-1.5 pr-3 pl-1.5 text-xs font-bold text-ink hover:border-brand-blue transition-all"
+              >
+                <div className="flex size-6 items-center justify-center rounded-full bg-gradient-brand text-[10px] font-black text-white shadow-xs">
+                  {(profile?.full_name?.[0] || user.email?.[0] || "U").toUpperCase()}
+                </div>
+                <span className="hidden md:inline max-w-[85px] truncate font-bold">
+                  {profile?.full_name?.split(" ")[0] || "Account"}
+                </span>
+              </motion.button>
+            ) : (
+              <motion.button
+                aria-label="Sign In"
+                title="Sign In or Create Account"
+                onClick={() => openAuthModal("signin")}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="flex items-center gap-1.5 rounded-full border border-slate-200/90 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-850 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-800 transition-all shadow-2xs"
+              >
+                <User className="size-3.5 stroke-[2] text-brand-blue" />
+                <span className="hidden md:inline font-bold">Sign In</span>
+              </motion.button>
+            )}
 
-            {/* Blue Rounded 'Get a Quote' Button (Hidden on very small mobile) */}
+            {/* Primary High-Conversion CTA: Get a Quote */}
             <motion.button
               onClick={() => openQuote()}
-              whileHover={{ scale: 1.04 }}
+              whileHover={{ scale: 1.04, y: -0.5 }}
               whileTap={{ scale: 0.96 }}
-              className="hidden sm:inline-flex rounded-xl bg-blue-600 hover:bg-blue-700 px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-white shadow-md transition-all hover:shadow-blue"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-black tracking-wide text-white shadow-sm shadow-red-600/25 hover:shadow-md hover:shadow-red-600/35 transition-all uppercase"
             >
-              Get a Quote
+              <Sparkles className="size-3.5" />
+              <span>Get a Quote</span>
             </motion.button>
 
             {/* Mobile Menu Trigger */}
             <motion.button
-              className="rounded-lg p-1.5 sm:p-2 text-ink xl:hidden hover:bg-accent"
+              className="rounded-lg p-1.5 sm:p-2 text-ink xl:hidden hover:bg-accent transition-colors"
               aria-label="Menu"
               onClick={() => setMobile((v) => !v)}
               whileTap={{ scale: 0.9 }}

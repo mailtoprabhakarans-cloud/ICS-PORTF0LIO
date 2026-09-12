@@ -190,7 +190,7 @@ export default function QuoteModal() {
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       className="w-full bg-transparent text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 outline-none font-medium"
-                      placeholder="+91 98765 43210"
+                      placeholder="+91 96266 44496"
                     />
                   </div>
                 </Field>

@@ -1,8 +1,8 @@
 export const CONTACT = {
-  phone: "+91 98765 43210",
-  phoneHref: "tel:+919876543210",
-  whatsapp: "919876543210",
-  email: "infantcs.cbe@gmail.com",
+  phone: "+91 96266 44496",
+  phoneHref: "tel:+919626644496",
+  whatsapp: "919626644496",
+  email: "info@icsstore.in",
   hours: "Mon – Sat · 9:30 AM – 8:00 PM (Sunday Closed)",
   status: "Open Now · Closes 8:00 PM",
   address: "240/A2B, Sarada Mill Rd, near Koushikha Hospital, Podanur, Coimbatore, Tamil Nadu 641023",
