@@ -55,7 +55,7 @@ export default function Services() {
           </h2>
           <p className="mt-3 text-muted-foreground text-sm sm:text-base leading-relaxed">
             From a single high-speed SSD upgrade to a 50-workstation enterprise LAN, 4K CCTV
-            surveillance, and GST accounting licenses — ICS Technologies is Coimbatore's trusted IT
+            surveillance, and GST accounting licenses — ICS Computer Store is Coimbatore's trusted IT
             engineering partner.
           </p>
         </motion.div>
@@ -147,7 +147,7 @@ function ServiceCard({
           </motion.button>
           <a
             href={waLink(
-              `Hi ICS Technologies, I want to inquire about your ${s.title} service.`,
+              `Hi ICS Computer Store, I want to inquire about your ${s.title} service.`,
             )}
             target="_blank"
             rel="noreferrer"

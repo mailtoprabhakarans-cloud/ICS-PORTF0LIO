@@ -306,7 +306,7 @@ export default function UserAccountDrawer() {
                         {/* Reorder / Contact Support */}
                         <div className="flex gap-2 pt-2">
                           <a
-                            href={`https://wa.me/919842212345?text=${encodeURIComponent(`Hi ICS Technologies, I want to check status on order #${order.id}`)}`}
+                            href={`https://wa.me/919842212345?text=${encodeURIComponent(`Hi ICS Computer Store, I want to check status on order #${order.id}`)}`}
                             target="_blank"
                             rel="noreferrer"
                             className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 py-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-colors"

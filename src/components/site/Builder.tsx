@@ -131,7 +131,7 @@ export default function Builder() {
       (item) =>
         `• ${BUILDER_CATALOG[item.cat].label}: ${item.part.name} (₹${item.part.price.toLocaleString("en-IN")})`,
     );
-    return `Hi ICS Technologies! I configured a custom PC build on your website:\n\n${lines.join(
+    return `Hi ICS Computer Store! I configured a custom PC build on your website:\n\n${lines.join(
       "\n",
     )}\n\nTotal Estimated Price: ₹${totalPrice.toLocaleString(
       "en-IN",
@@ -507,7 +507,7 @@ export default function Builder() {
             {/* Quality Guarantee Box */}
             <div className="rounded-2xl border border-border/40 bg-gradient-mesh p-4 text-xs">
               <p className="font-bold text-ink flex items-center gap-1.5">
-                <ShieldCheck className="size-4 text-brand-red" /> The ICS Technologies Build Promise
+                <ShieldCheck className="size-4 text-brand-red" /> The ICS Computer Store Build Promise
               </p>
               <p className="mt-1 text-muted-foreground leading-relaxed">
                 Zero grey-market components. All parts carry official authorized manufacturer

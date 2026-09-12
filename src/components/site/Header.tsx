@@ -175,7 +175,7 @@ export default function Header() {
                   ICS
                 </span>
                 <span className="font-display text-base sm:text-xl lg:text-[22px] font-extrabold tracking-wider text-slate-900 dark:text-white uppercase">
-                  TECHNOLOGIES
+                  COMPUTER STORE
                 </span>
               </div>
               <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 sm:mt-1">
@@ -753,7 +753,7 @@ function CartDrawer() {
                     {/* Send Quote via WhatsApp Button */}
                     <button
                       onClick={() => {
-                        const whatsappMessage = `Hi ICS Technologies! Please send me an official quotation for the following cart items:\n\n${cart
+                        const whatsappMessage = `Hi ICS Computer Store! Please send me an official quotation for the following cart items:\n\n${cart
                           .map(
                             (item, i) =>
                               `${i + 1}. ${item.name} (Qty: ${item.qty}) - ₹${(item.price * item.qty).toLocaleString("en-IN")}`,

@@ -509,7 +509,7 @@ function ProductCard({
 
           <a
             href={waLink(
-              `Hi ICS Technologies, I want to inquire about ${p.name} (₹${p.price.toLocaleString(
+              `Hi ICS Computer Store, I want to inquire about ${p.name} (₹${p.price.toLocaleString(
                 "en-IN",
               )}). Is it available in your Gandhipuram store?`,
             )}

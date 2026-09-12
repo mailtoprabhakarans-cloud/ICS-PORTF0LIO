@@ -20,9 +20,9 @@ import AuthModal from "@/components/auth/AuthModal";
 import UserAccountDrawer from "@/components/auth/UserAccountDrawer";
 import { Toaster } from "sonner";
 
-const title = "ICS Technologies | Custom Gaming PCs, Enterprise Networking & CCTV in Coimbatore";
+const title = "ICS Computer Store | Custom Gaming PCs, Enterprise Networking & CCTV in Coimbatore";
 const description =
-  "ICS Technologies (since 2007): Custom PC builds, RTX 50-Series, Ryzen CPUs, enterprise Cat6 networking, 4K CCTV surveillance, and in-house chip-level motherboard repair in Gandhipuram, Coimbatore.";
+  "ICS Computer Store (since 2007): Custom PC builds, RTX 50-Series, Ryzen CPUs, enterprise Cat6 networking, 4K CCTV surveillance, and in-house chip-level motherboard repair in Gandhipuram, Coimbatore.";
 
 export const Route = createFileRoute("/")({
   head: () => ({

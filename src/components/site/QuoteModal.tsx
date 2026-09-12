@@ -70,7 +70,7 @@ export default function QuoteModal() {
       notes,
     });
 
-    const msg = `Hi ICS Technologies! Here is my quote request:\n\n• Name: ${name || "Customer"}\n• Phone: ${phone || "Not specified"}\n• Service Required: ${service}\n• Notes / Spec: ${notes || "Standard Inquiry"}\n\nPlease share availability & quotation.`;
+    const msg = `Hi ICS Computer Store! Here is my quote request:\n\n• Name: ${name || "Customer"}\n• Phone: ${phone || "Not specified"}\n• Service Required: ${service}\n• Notes / Spec: ${notes || "Standard Inquiry"}\n\nPlease share availability & quotation.`;
     window.open(waLink(msg), "_blank");
     setSent(true);
     toast.success("Quote sent & saved to your account!");
@@ -125,7 +125,7 @@ export default function QuoteModal() {
                 <Receipt className="size-4" />
               </span>
               <span className="text-[11px] font-bold tracking-wider text-blue-700 uppercase">
-                ICS Technologies · Quotation Desk
+                ICS Computer Store · Quotation Desk
               </span>
             </div>
             <h3 className="mt-2 font-display text-2xl font-black text-slate-900">

@@ -143,7 +143,7 @@ export default function CompareModal() {
                     </button>
                     <a
                       href={waLink(
-                        `Hi ICS Technologies, I'm comparing ${p.name}. Can you provide final pricing?`,
+                        `Hi ICS Computer Store, I'm comparing ${p.name}. Can you provide final pricing?`,
                       )}
                       target="_blank"
                       rel="noreferrer"

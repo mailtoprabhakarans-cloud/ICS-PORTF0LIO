@@ -64,7 +64,7 @@ export default function AuthModal() {
           setErrorMessage(error.message);
           toast.error("Sign in failed", { description: error.message });
         } else {
-          toast.success("Welcome back to ICS Technologies!", {
+          toast.success("Welcome back to ICS Computer Store!", {
             description: `Signed in as ${email}`,
           });
         }
@@ -87,7 +87,7 @@ export default function AuthModal() {
         } else {
           if (!isSupabaseConfigured || user?.identities?.length !== 0) {
             toast.success("Account created successfully!", {
-              description: "You are now signed in to ICS Technologies.",
+              description: "You are now signed in to ICS Computer Store.",
             });
           } else {
             setSuccessMessage("Please check your email for the confirmation link to activate your account.");
@@ -159,7 +159,7 @@ export default function AuthModal() {
                   <div className="flex items-center gap-1.5 leading-none">
                     <span className="font-display text-xl font-black text-red-600">ICS</span>
                     <span className="font-display text-base font-extrabold text-slate-900 tracking-wider uppercase">
-                      TECHNOLOGIES
+                      COMPUTER STORE
                     </span>
                   </div>
                   <p className="text-[10.5px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
@@ -238,7 +238,7 @@ export default function AuthModal() {
                   {mode === "signin"
                     ? "Enter your credentials or continue with Google to access your dashboard."
                     : mode === "signup"
-                      ? "Join ICS Technologies for exclusive hardware pricing & order tracking."
+                      ? "Join ICS Computer Store for exclusive hardware pricing & order tracking."
                       : "Enter your registered email to receive a password reset link."}
                 </p>
               </div>

@@ -221,7 +221,7 @@ export default function ReviewsAndStore() {
 
                 <motion.a
                   href={waLink(
-                    "Hi ICS Technologies! I'm planning to visit your Podanur, Coimbatore store.",
+                    "Hi ICS Computer Store! I'm planning to visit your Podanur, Coimbatore store.",
                   )}
                   target="_blank"
                   rel="noreferrer"
@@ -239,7 +239,7 @@ export default function ReviewsAndStore() {
               {/* Interactive Embedded Google Map */}
               <div className="relative w-full h-[280px] sm:h-[320px] rounded-2xl overflow-hidden border border-border/60 shadow-sm bg-slate-900/10">
                 <iframe
-                  title="ICS Technologies Google Map Location"
+                  title="ICS Computer Store Google Map Location"
                   src={CONTACT.mapEmbedUrl}
                   width="100%"
                   height="100%"

@@ -62,7 +62,7 @@ export default function Footer() {
               <div className="flex items-center gap-1.5">
                 <span className="font-display text-2xl font-black text-gradient-brand">ICS</span>
                 <span className="font-display text-lg font-extrabold tracking-wider text-ink uppercase">
-                  TECHNOLOGIES
+                  COMPUTER STORE
                 </span>
               </div>
               <span className="block text-xs font-bold tracking-wider text-brand-blue uppercase mt-0.5">
@@ -188,7 +188,7 @@ export default function Footer() {
       {/* Bottom Bar */}
       <div className="relative border-t border-border/40">
         <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-3 px-4 sm:px-6 lg:px-12 2xl:px-16 py-6 text-xs sm:text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} ICS Technologies. All Rights Reserved. (Since 2007)</p>
+          <p>© {new Date().getFullYear()} ICS Computer Store. All Rights Reserved. (Since 2007)</p>
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5 font-bold text-ink">
               <Sparkles className="size-3.5 text-brand-red" /> GST Registered Dealer
@@ -205,7 +205,7 @@ export default function Footer() {
 export function WhatsAppFab() {
   return (
     <motion.a
-      href={waLink("Hi ICS Technologies! I'd like to ask a query regarding products and services.")}
+      href={waLink("Hi ICS Computer Store! I'd like to ask a query regarding products and services.")}
       target="_blank"
       rel="noreferrer"
       initial={{ scale: 0, opacity: 0 }}

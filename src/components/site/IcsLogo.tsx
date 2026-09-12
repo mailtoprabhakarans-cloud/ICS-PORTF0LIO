@@ -15,7 +15,7 @@ export default function IcsLogo({ className = "size-11", size }: IcsLogoProps) {
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       style={style}
-      aria-label="ICS Technologies Logo"
+      aria-label="ICS Computer Store Logo"
     >
       <defs>
         {/* Red Top-Left Swoosh Gradient */}

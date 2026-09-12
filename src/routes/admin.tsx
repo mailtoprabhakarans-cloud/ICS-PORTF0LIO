@@ -52,7 +52,7 @@ const ADMIN_SECURITY_PIN = "admin123";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
-    meta: [{ title: "Admin Portal | ICS Technologies Management Hub" }],
+    meta: [{ title: "Admin Portal | ICS Computer Store Management Hub" }],
   }),
   component: AdminPageWrapper,
 });

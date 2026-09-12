@@ -64,7 +64,7 @@ export default function NetworkEstimator() {
   const estimatedGrandTotal = estimatedHardwareTotal + estimatedLaborAndTesting;
 
   const getWhatsAppEstimatorText = () => {
-    return `Hi ICS Technologies! I used your Network & CCTV Solution Estimator:\n\n• Site Type: ${siteType.toUpperCase()}\n• CCTV Cameras: ${cameraCount}x (${cameraType === "4mp-colorvu" ? "4MP ColorVu" : "4K Ultra IP"})\n• Network Cat6 Drops: ${dataPoints} Points\n• Wi-Fi 6 Access Points: ${wifiAps} Units\n• Biometrics: ${includeBiometrics ? "Yes" : "No"}\n• Server Rack & PoE Switch: ${includeServerRack ? "Yes" : "No"}\n\nEstimated Solution Cost: ~₹${estimatedGrandTotal.toLocaleString(
+    return `Hi ICS Computer Store! I used your Network & CCTV Solution Estimator:\n\n• Site Type: ${siteType.toUpperCase()}\n• CCTV Cameras: ${cameraCount}x (${cameraType === "4mp-colorvu" ? "4MP ColorVu" : "4K Ultra IP"})\n• Network Cat6 Drops: ${dataPoints} Points\n• Wi-Fi 6 Access Points: ${wifiAps} Units\n• Biometrics: ${includeBiometrics ? "Yes" : "No"}\n• Server Rack & PoE Switch: ${includeServerRack ? "Yes" : "No"}\n\nEstimated Solution Cost: ~₹${estimatedGrandTotal.toLocaleString(
       "en-IN",
     )}\n\nPlease arrange an on-site survey and official quotation.`;
   };

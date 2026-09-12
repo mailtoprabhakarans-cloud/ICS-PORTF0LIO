@@ -1702,7 +1702,7 @@ export const REVIEWS: Review[] = [
     rating: 5,
     date: "1 month ago",
     comment:
-      "ICS Technologies setup our 3-floor office network with 16 Hikvision ColorVu cameras and D-Link 24-Port PoE switches. Structured cabling is neat and their mobile viewing setup works seamlessly.",
+      "ICS Computer Store setup our 3-floor office network with 16 Hikvision ColorVu cameras and D-Link 24-Port PoE switches. Structured cabling is neat and their mobile viewing setup works seamlessly.",
     tag: "Networking & CCTV",
   },
   {
@@ -1711,7 +1711,7 @@ export const REVIEWS: Review[] = [
     rating: 5,
     date: "3 weeks ago",
     comment:
-      "My Dell gaming laptop motherboard was declared dead by the official service center. ICS Technologies diagnosed a shorted capacitor and fixed it at their chip-level lab in just 24 hours at a fraction of the cost.",
+      "My Dell gaming laptop motherboard was declared dead by the official service center. ICS Computer Store diagnosed a shorted capacitor and fixed it at their chip-level lab in just 24 hours at a fraction of the cost.",
     tag: "Chip-Level Repair",
   },
   {

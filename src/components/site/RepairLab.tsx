@@ -221,7 +221,7 @@ export default function RepairLab() {
                   </motion.button>
                   <a
                     href={waLink(
-                      "Hi ICS Technologies, I need urgent chip-level motherboard repair for my laptop.",
+                      "Hi ICS Computer Store, I need urgent chip-level motherboard repair for my laptop.",
                     )}
                     target="_blank"
                     rel="noreferrer"

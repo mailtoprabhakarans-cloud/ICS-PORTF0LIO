@@ -105,7 +105,7 @@ export default function WishlistDrawer() {
               <div className="border-t border-border p-4">
                 <a
                   href={waLink(
-                    `Hi ICS Technologies, here is my saved wishlist from your website:\n\n${wishlist
+                    `Hi ICS Computer Store, here is my saved wishlist from your website:\n\n${wishlist
                       .map((p, i) => `${i + 1}. ${p.name} - ₹${p.price.toLocaleString("en-IN")}`)
                       .join("\n")}\n\nPlease check stock and final package discount.`,
                   )}

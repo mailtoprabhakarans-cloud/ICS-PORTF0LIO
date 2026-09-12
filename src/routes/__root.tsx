@@ -77,18 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "ICS Technologies | Computers, Networking & CCTV" },
+      { title: "ICS Computer Store | Computers, Networking & CCTV" },
       {
         name: "description",
         content:
-          "ICS Technologies — computers, custom PC builds, networking, CCTV and IT services in Coimbatore since 2007.",
+          "ICS Computer Store — computers, custom PC builds, networking, CCTV and IT services in Coimbatore since 2007.",
       },
-      { name: "author", content: "ICS Technologies" },
-      { property: "og:title", content: "ICS Technologies | Computers, Networking & CCTV" },
+      { name: "author", content: "ICS Computer Store" },
+      { property: "og:title", content: "ICS Computer Store | Computers, Networking & CCTV" },
       {
         property: "og:description",
         content:
-          "ICS Technologies — computers, custom PC builds, networking, CCTV and IT services in Coimbatore since 2007.",
+          "ICS Computer Store — computers, custom PC builds, networking, CCTV and IT services in Coimbatore since 2007.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

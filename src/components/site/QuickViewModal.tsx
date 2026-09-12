@@ -274,7 +274,7 @@ export default function QuickViewModal() {
 
                 <a
                   href={waLink(
-                    `Hi ICS Technologies, I want to purchase ${p.name} (₹${p.price.toLocaleString("en-IN")}). Please confirm availability.`,
+                    `Hi ICS Computer Store, I want to purchase ${p.name} (₹${p.price.toLocaleString("en-IN")}). Please confirm availability.`,
                   )}
                   target="_blank"
                   rel="noreferrer"
