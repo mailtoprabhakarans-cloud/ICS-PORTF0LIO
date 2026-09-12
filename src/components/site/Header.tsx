@@ -153,10 +153,8 @@ export default function Header() {
 
       {/* Main Navigation Bar */}
       <div
-        className={`transition-all duration-300 ${
-          scrolled
-            ? "border-b border-border/60 bg-card/95 backdrop-blur-xl shadow-soft"
-            : "border-b border-border/40 bg-card/85 backdrop-blur-lg"
+        className={`transition-all duration-300 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 ${
+          scrolled ? "shadow-md" : "shadow-xs"
         }`}
       >
         <div className="mx-auto flex max-w-[1800px] items-center justify-between gap-3 sm:gap-6 px-3 sm:px-6 lg:px-12 2xl:px-16 py-2.5 sm:py-3.5">
@@ -466,55 +464,64 @@ export default function Header() {
             </a>
           ))}
 
-          {/* Mega Menu Dropdown */}
+          {/* Mega Menu Dropdown — 100% Solid Opaque (No Bleed-Through in Light or Dark Mode) */}
           <AnimatePresence>
             {open && (
               <motion.div
-                initial={{ opacity: 0, y: 16, scale: 0.99 }}
+                initial={{ opacity: 0, y: 10, scale: 0.99 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 10, scale: 0.99 }}
-                transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                className="absolute inset-x-0 top-full z-40 border-t border-border/50"
+                exit={{ opacity: 0, y: 6, scale: 0.99 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="absolute inset-x-0 top-full z-50 border-t border-slate-200 dark:border-slate-800 shadow-2xl"
               >
                 <div className="mx-auto max-w-[1800px] px-4 sm:px-6 lg:px-12 2xl:px-16">
-                  <div className="rounded-b-2xl border border-t-0 border-border/50 glass-card-strong p-6 shadow-soft">
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="h-1.5 w-8 rounded-full bg-gradient-brand" />
-                      <h3 className="font-display text-sm font-bold tracking-wide text-ink uppercase">
-                        {open}
-                      </h3>
+                  <div className="rounded-b-3xl border border-t-0 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-2xl">
+                    <div className="mb-5 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                      <div className="flex items-center gap-2.5">
+                        <span className="h-2 w-8 rounded-full bg-gradient-brand" />
+                        <h3 className="font-display text-base font-black tracking-wider text-slate-900 dark:text-white uppercase">
+                          {open}
+                        </h3>
+                      </div>
+                      <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                        Official Store Catalog
+                      </span>
                     </div>
                     <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-4">
                       {MEGA_MENU.find((c) => c.label === open)?.columns.map((col) => (
                         <div key={col.title}>
-                          <p className="mb-2 text-xs font-bold tracking-wider text-brand-red uppercase">
+                          <p className="mb-3 text-xs font-black tracking-wider text-red-600 dark:text-red-400 uppercase">
                             {col.title}
                           </p>
-                          <ul className="space-y-1.5">
+                          <ul className="space-y-2">
                             {col.items.map((item) => (
                               <li key={item}>
                                 <a
                                   href="#products"
-                                  className="group inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-brand-blue"
+                                  onClick={() => setOpen(null)}
+                                  className="group inline-flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                                 >
-                                  <span className="h-1 w-1 rounded-full bg-border transition-all duration-300 group-hover:w-3 group-hover:bg-brand-blue" />
-                                  {item}
+                                  <span className="h-1.5 w-1.5 rounded-full bg-slate-300 dark:bg-slate-700 transition-all duration-200 group-hover:w-3.5 group-hover:bg-blue-600 dark:group-hover:bg-blue-400 shrink-0" />
+                                  <span>{item}</span>
                                 </a>
                               </li>
                             ))}
                           </ul>
                         </div>
                       ))}
-                      <div className="hidden rounded-xl bg-gradient-mesh p-5 lg:block">
-                        <p className="font-display text-base font-bold text-ink">
+                      <div className="hidden rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200/90 dark:border-slate-800 p-5 lg:block">
+                        <p className="font-display text-base font-bold text-slate-900 dark:text-white">
                           Need custom advice?
                         </p>
-                        <p className="mt-1 text-xs text-muted-foreground">
+                        <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                           Our in-house engineers spec components tailored to your workload.
                         </p>
                         <button
-                          onClick={() => openQuote(`Inquiry: ${open}`)}
-                          className="mt-4 rounded-full bg-ink px-4 py-2 text-xs font-semibold text-white transition-all hover:scale-105 hover:shadow-lift"
+                          onClick={() => {
+                            setOpen(null);
+                            openQuote(`Inquiry: ${open}`);
+                          }}
+                          className="mt-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 text-xs font-bold transition-all shadow-sm shadow-blue-500/20"
                         >
                           Talk to an expert
                         </button>
@@ -526,6 +533,55 @@ export default function Header() {
             )}
           </AnimatePresence>
         </nav>
+
+        {/* Mobile Navigation Drawer (100% Solid in Light & Dark Mode) */}
+        <AnimatePresence>
+          {mobile && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25 }}
+              className="xl:hidden border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden"
+            >
+              <div className="px-4 py-4 space-y-3 max-h-[75vh] overflow-y-auto">
+                <div className="space-y-1">
+                  <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
+                    Quick Navigation
+                  </p>
+                  {NAV_LINKS.map((l) => (
+                    <a
+                      key={l.label}
+                      href={l.href}
+                      onClick={() => setMobile(false)}
+                      className="block rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    >
+                      {l.label}
+                    </a>
+                  ))}
+                </div>
+
+                <div className="border-t border-slate-100 dark:border-slate-800 pt-3">
+                  <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
+                    Categories
+                  </p>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {MEGA_MENU.map((cat) => (
+                      <a
+                        key={cat.label}
+                        href="#products"
+                        onClick={() => setMobile(false)}
+                        className="rounded-lg bg-slate-50 dark:bg-slate-800/80 p-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400"
+                      >
+                        {cat.label}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Cart Drawer */}
