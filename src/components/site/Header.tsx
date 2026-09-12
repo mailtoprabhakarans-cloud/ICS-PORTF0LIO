@@ -196,14 +196,14 @@ export default function Header() {
             <div
               className={`flex w-full items-center rounded-full border transition-all duration-200 ${
                 searchFocused
-                  ? "border-brand-blue ring-4 ring-brand-blue/15 bg-white dark:bg-slate-950 shadow-sm"
-                  : "border-slate-200/90 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/60 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-900"
+                  ? "border-blue-600 ring-4 ring-blue-600/15 bg-white dark:bg-slate-950 shadow-sm"
+                  : "border-slate-200/90 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-900/60 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-900"
               }`}
             >
-              <div className="flex items-center gap-2.5 flex-1 px-4 py-2 sm:py-2.5">
+              <div className="flex items-center gap-2.5 flex-1 px-4 py-1.5 sm:py-2">
                 <Search
                   className={`size-4 shrink-0 transition-colors ${
-                    searchFocused ? "text-brand-blue" : "text-slate-400 dark:text-slate-500"
+                    searchFocused ? "text-blue-600" : "text-slate-400 dark:text-slate-500"
                   }`}
                 />
                 <input
@@ -214,62 +214,91 @@ export default function Header() {
                   className="flex-1 bg-transparent text-xs sm:text-sm text-ink outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500 font-medium"
                   placeholder="Search RTX 50-Series, Ryzen, Laptops, 4K CCTV, Networking..."
                 />
-                {searchQuery ? (
+                {searchQuery && (
                   <button
                     onClick={() => setSearchQuery("")}
                     aria-label="Clear search"
-                    className="text-slate-400 hover:text-ink transition-colors p-0.5"
+                    className="text-slate-400 hover:text-ink transition-colors p-1"
                   >
                     <X className="size-3.5" />
                   </button>
-                ) : (
-                  <kbd className="hidden xl:inline-flex items-center rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-semibold text-slate-400 select-none shadow-2xs">
-                    Ctrl K
-                  </kbd>
                 )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const firstMatch = searchResults[0];
+                    if (firstMatch) {
+                      setQuickViewProduct(firstMatch);
+                      setSearchQuery("");
+                    }
+                  }}
+                  className="flex items-center gap-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 text-xs font-bold transition-all shadow-xs shrink-0"
+                >
+                  <Search className="size-3.5" />
+                  <span className="hidden sm:inline">Search</span>
+                </button>
               </div>
             </div>
 
-            {/* Live Autocomplete Dropdown */}
+            {/* Live Autocomplete Dropdown — Solid Opaque Card (No Bleed-Through) */}
             <AnimatePresence>
               {searchFocused && searchResults.length > 0 && (
                 <motion.div
-                  initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                  initial={{ opacity: 0, y: 10, scale: 0.99 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                  transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute top-full right-4 left-4 z-50 mt-2 overflow-hidden rounded-2xl border border-border/50 glass-card-strong p-2 shadow-soft"
+                  exit={{ opacity: 0, y: 6, scale: 0.99 }}
+                  transition={{ duration: 0.18, ease: "easeOut" }}
+                  className="absolute top-full left-0 right-0 z-[100] mt-2 max-h-[420px] overflow-y-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl p-2.5"
                 >
-                  <p className="px-3 py-1.5 text-[11px] font-bold tracking-wider text-muted-foreground uppercase">
-                    Suggested Products
-                  </p>
-                  <div className="space-y-1">
+                  <div className="flex items-center justify-between px-3 py-1.5 border-b border-slate-100 dark:border-slate-800/80 mb-1.5">
+                    <p className="text-[11px] font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                      Suggested Products ({searchResults.length})
+                    </p>
+                    <span className="text-[10px] text-slate-400">Click to view product</span>
+                  </div>
+                  <div className="space-y-1.5">
                     {searchResults.map((prod, idx) => (
                       <motion.div
                         key={prod.id}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: idx * 0.05 }}
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.03 }}
                         onMouseDown={() => {
                           setQuickViewProduct(prod);
                           setSearchQuery("");
                         }}
-                        className="flex cursor-pointer items-center justify-between gap-3 rounded-xl p-2.5 transition-colors hover:bg-accent/60"
+                        className="flex cursor-pointer items-center justify-between gap-3 rounded-xl p-2.5 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/90 border border-transparent hover:border-slate-200/80 dark:hover:border-slate-700/60"
                       >
-                        <div className="flex flex-col gap-0.5">
-                          <div className="flex items-center gap-2">
-                            <span className="rounded bg-brand-blue/10 px-1.5 py-0.5 text-[10px] font-bold text-brand-blue uppercase">
-                              {prod.category}
+                        <div className="flex items-center gap-3 min-w-0">
+                          <img
+                            src={prod.image}
+                            alt={prod.name}
+                            className="size-11 rounded-lg object-contain bg-slate-50 dark:bg-slate-800 p-1 shrink-0 border border-slate-200/80 dark:border-slate-700/60"
+                          />
+                          <div className="flex flex-col gap-0.5 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="rounded bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.5 text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase shrink-0">
+                                {prod.category}
+                              </span>
+                              <span className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
+                                {prod.name}
+                              </span>
+                            </div>
+                            <span className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                              {prod.specs.join(" · ")}
                             </span>
-                            <span className="text-sm font-semibold text-ink">{prod.name}</span>
                           </div>
-                          <span className="text-xs text-muted-foreground">
-                            {prod.specs.join(" · ")}
-                          </span>
                         </div>
-                        <span className="font-display text-sm font-bold text-brand-red">
-                          ₹{prod.price.toLocaleString("en-IN")}
-                        </span>
+                        <div className="text-right shrink-0">
+                          <span className="font-display text-sm font-bold text-red-600 dark:text-red-400">
+                            ₹{prod.price.toLocaleString("en-IN")}
+                          </span>
+                          {prod.mrp && prod.mrp > prod.price && (
+                            <span className="block text-[10px] text-slate-400 line-through">
+                              ₹{prod.mrp.toLocaleString("en-IN")}
+                            </span>
+                          )}
+                        </div>
                       </motion.div>
                     ))}
                   </div>
@@ -383,7 +412,7 @@ export default function Header() {
               onClick={() => openQuote()}
               whileHover={{ scale: 1.04, y: -0.5 }}
               whileTap={{ scale: 0.96 }}
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-black tracking-wide text-white shadow-sm shadow-red-600/25 hover:shadow-md hover:shadow-red-600/35 transition-all uppercase"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold tracking-wide text-white shadow-sm shadow-blue-500/25 hover:shadow-md hover:shadow-blue-500/35 transition-all uppercase"
             >
               <Sparkles className="size-3.5" />
               <span>Get a Quote</span>
