@@ -56,8 +56,8 @@ export default function AuthModal() {
   const [companyName, setCompanyName] = useState("");
   const [gstNumber, setGstNumber] = useState("");
 
-  // OTP State (6 Digits)
-  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
+  // OTP State (Supports 6 to 8 Digits)
+  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", "", "", ""]);
   const [resendCountdown, setResendCountdown] = useState<number>(45);
   const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -94,7 +94,7 @@ export default function AuthModal() {
     setErrorMessage(null);
 
     // Auto-advance to next box if digit entered
-    if (digit && index < 5) {
+    if (digit && index < 7) {
       otpInputRefs.current[index + 1]?.focus();
     }
   };
@@ -107,16 +107,16 @@ export default function AuthModal() {
 
   const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 8);
     if (!pasted) return;
 
     const newDigits = [...otpDigits];
     pasted.split("").forEach((ch, idx) => {
-      if (idx < 6) newDigits[idx] = ch;
+      if (idx < 8) newDigits[idx] = ch;
     });
     setOtpDigits(newDigits);
 
-    const focusIndex = Math.min(pasted.length, 5);
+    const focusIndex = Math.min(pasted.length, 7);
     otpInputRefs.current[focusIndex]?.focus();
   };
 
@@ -189,18 +189,18 @@ export default function AuthModal() {
         } else {
           setMode("otp");
           setResendCountdown(45);
-          setOtpDigits(["", "", "", "", "", ""]);
+          setOtpDigits(["", "", "", "", "", "", "", ""]);
           toast.success("Verification code sent!", {
-            description: `Please enter the 6-digit OTP code sent to ${email}.`,
+            description: `Please enter the verification code sent to ${email}.`,
           });
           setTimeout(() => {
             otpInputRefs.current[0]?.focus();
           }, 200);
         }
       } else if (mode === "otp") {
-        const fullOtp = otpDigits.join("");
+        const fullOtp = otpDigits.join("").trim();
         if (fullOtp.length < 6) {
-          setErrorMessage("Please enter the complete 6-digit verification code.");
+          setErrorMessage("Please enter the complete verification code from your email.");
           setLoading(false);
           return;
         }
@@ -650,12 +650,12 @@ export default function AuthModal() {
                     </div>
                   </div>
 
-                  {/* 6-Digit Segmented OTP Input */}
+                  {/* Segmented OTP Input (Supports 6 to 8 Digits) */}
                   <div>
                     <label className="mb-2 block text-center text-xs font-bold tracking-wider text-slate-600 dark:text-slate-300 uppercase">
-                      Enter 6-Digit OTP Code
+                      Enter Verification Code
                     </label>
-                    <div className="flex items-center justify-center gap-2 sm:gap-3">
+                    <div className="flex items-center justify-center gap-1.5 sm:gap-2">
                       {otpDigits.map((digit, idx) => (
                         <input
                           key={idx}
@@ -669,7 +669,7 @@ export default function AuthModal() {
                           onChange={(e) => handleOtpDigitChange(idx, e.target.value)}
                           onKeyDown={(e) => handleOtpKeyDown(idx, e)}
                           onPaste={idx === 0 ? handleOtpPaste : undefined}
-                          className="size-11 sm:size-13 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-center font-mono text-xl sm:text-2xl font-black text-slate-900 dark:text-white outline-none transition-all focus:border-blue-600 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-blue-600/15"
+                          className="size-9 sm:size-11 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-center font-mono text-lg sm:text-xl font-black text-slate-900 dark:text-white outline-none transition-all focus:border-blue-600 dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-blue-600/15"
                         />
                       ))}
                     </div>
