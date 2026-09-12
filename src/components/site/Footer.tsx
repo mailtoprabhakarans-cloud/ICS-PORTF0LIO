@@ -59,14 +59,21 @@ export default function Footer() {
           <div className="flex items-center gap-3">
             <IcsLogo className="size-12 shrink-0 drop-shadow" />
             <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-display text-2xl font-black text-gradient-brand">ICS</span>
-                <span className="font-display text-lg font-extrabold tracking-wider text-ink uppercase">
+              <div className="flex items-baseline gap-2">
+                <span className="font-display text-2xl font-black text-red-600 dark:text-red-500">ICS</span>
+                <span className="font-display text-2xl font-black tracking-tight text-ink uppercase">
                   COMPUTER STORE
                 </span>
               </div>
-              <span className="block text-xs font-bold tracking-wider text-brand-blue uppercase mt-0.5">
-                Est. 2007 · Gandhipuram, Coimbatore
+              <div className="flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-[10px] font-bold tracking-[0.06em] text-[#0c2340] dark:text-blue-300 uppercase mt-1 whitespace-nowrap">
+                <span>IT HARDWARE &amp; SOFTWARE</span>
+                <span className="text-slate-400 dark:text-slate-500 font-normal px-0.5">|</span>
+                <span>CCTV &amp; SECURITY</span>
+                <span className="text-slate-400 dark:text-slate-500 font-normal px-0.5">|</span>
+                <span>NETWORKING</span>
+              </div>
+              <span className="block text-xs font-semibold text-muted-foreground mt-1">
+                Est. 2007 · Gandhipuram &amp; Podanur, Coimbatore
               </span>
             </div>
           </div>

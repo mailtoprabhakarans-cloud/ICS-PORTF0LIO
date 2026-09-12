@@ -156,14 +156,14 @@ export default function AuthModal() {
                   <IcsLogo className="size-11" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-1.5 leading-none">
+                  <div className="flex items-baseline gap-1.5 leading-none">
                     <span className="font-display text-xl font-black text-red-600">ICS</span>
-                    <span className="font-display text-base font-extrabold text-slate-900 tracking-wider uppercase">
+                    <span className="font-display text-lg font-black text-slate-900 tracking-tight uppercase">
                       COMPUTER STORE
                     </span>
                   </div>
-                  <p className="text-[10.5px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
-                    Podanur, Coimbatore
+                  <p className="text-[9.5px] font-bold text-[#0c2340] uppercase tracking-[0.06em] mt-1 whitespace-nowrap">
+                    IT HARDWARE &amp; SOFTWARE | CCTV &amp; SECURITY | NETWORKING
                   </p>
                 </div>
               </div>
