@@ -163,29 +163,29 @@ export default function Header() {
           {/* Logo & Brand Name */}
           <a
             href="#top"
-            className="group flex shrink-0 items-center gap-2.5 sm:gap-3.5 select-none transition-opacity hover:opacity-95"
+            className="group flex shrink-0 items-center gap-3 select-none transition-opacity hover:opacity-95"
           >
             <motion.div
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 320 }}
               className="shrink-0 drop-shadow-sm"
             >
-              <IcsLogo className="size-11 sm:size-12 lg:size-[48px]" />
+              <IcsLogo className="size-12 sm:size-13 lg:size-14" />
             </motion.div>
             <div className="flex flex-col justify-center shrink-0">
-              <div className="flex items-baseline gap-1.5 sm:gap-2 leading-none">
-                <span className="font-display text-xl sm:text-2xl lg:text-[25px] font-black tracking-tight text-red-600 dark:text-red-500">
+              <div className="flex items-baseline leading-none font-sans">
+                <span className="text-2xl sm:text-[26px] lg:text-[28px] font-black tracking-tight text-[#DC1424]">
                   ICS
                 </span>
-                <span className="font-display text-lg sm:text-2xl lg:text-[24px] font-black tracking-tight text-slate-900 dark:text-white uppercase">
+                <span className="ml-1.5 text-xl sm:text-[23px] lg:text-[25px] font-black tracking-tight text-slate-950 dark:text-white uppercase">
                   COMPUTER STORE
                 </span>
               </div>
-              <div className="flex items-center gap-1 sm:gap-1.5 mt-1 sm:mt-1.5 text-[7.5px] sm:text-[9px] lg:text-[10px] font-bold tracking-[0.04em] sm:tracking-[0.08em] text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
+              <div className="flex items-center gap-1 sm:gap-1.5 mt-1 font-sans text-[8px] sm:text-[9.5px] lg:text-[10.5px] font-extrabold tracking-[0.04em] text-[#002060] dark:text-sky-300 uppercase whitespace-nowrap">
                 <span>IT HARDWARE &amp; SOFTWARE</span>
-                <span className="text-slate-300 dark:text-slate-700 font-light px-0.5">|</span>
+                <span className="text-slate-300 dark:text-slate-600 font-light px-0.5">|</span>
                 <span>CCTV &amp; SECURITY</span>
-                <span className="text-slate-300 dark:text-slate-700 font-light px-0.5">|</span>
+                <span className="text-slate-300 dark:text-slate-600 font-light px-0.5">|</span>
                 <span>NETWORKING</span>
               </div>
             </div>
