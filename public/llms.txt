@@ -1,0 +1,78 @@
+# ICS Computer Store — Coimbatore, Tamil Nadu, India
+
+> Coimbatore's premier IT hardware store since 2007. Custom gaming PC builds,
+> enterprise networking, 4K CCTV surveillance, and chip-level motherboard repair.
+
+## About Us
+ICS Computer Store (also known as Infant Computer Store) has been serving
+Coimbatore since 2007. We are a GST-registered dealer located at 240/A2B,
+Sarada Mill Rd, near Koushikha Hospital, Podanur, Coimbatore – 641023.
+
+- **Phone:** +91 96266 44496
+- **Email:** info@icsstore.in
+- **Hours:** Mon–Sat 9:30 AM – 8:00 PM (Sunday Closed)
+- **Rating:** 4.7★ (132 Google Reviews)
+- **Experience:** 18+ years, 5,000+ custom PCs built
+
+## Products We Sell
+- **Processors:** AMD Ryzen 9 9950X, Ryzen 7 7800X3D, Intel Core i9-14900K, i7-14700K, i5-14600K
+- **Graphics Cards:** NVIDIA RTX 5080, RTX 5070 Ti, RTX 4070 SUPER, RTX 4060 Ti
+- **Motherboards:** ASUS, MSI, Gigabyte — AM5, LGA 1700, X670E, B650, Z790
+- **Memory:** Corsair, Kingston, G.Skill DDR5 — 16GB, 32GB, 64GB kits
+- **Storage:** Samsung 990 Pro, WD Black SN850X, Crucial NVMe Gen4/Gen5 SSDs
+- **Monitors:** ASUS, LG, Samsung — 144Hz, 240Hz, 4K gaming & productivity
+- **Laptops:** HP, Dell, Lenovo, ASUS — gaming, business, and student laptops
+- **Power Supplies:** Corsair, Cooler Master, Seasonic 80+ Gold/Platinum PSUs
+- **Cooling:** AIO liquid coolers (240mm, 360mm), air coolers, thermal paste
+
+## Services
+### Custom PC Assembly
+Pick your budget and workload. We assemble, cable-manage, and run 24-hour
+AIDA64 & 3DMark stress tests on every rig. Free assembly with component purchase.
+
+### Enterprise Networking
+Cat6/Cat6A structured cabling, server rack deployment, managed PoE switches,
+multi-WAN firewall routers, and Ubiquiti UniFi enterprise Wi-Fi installation.
+Free site survey across Coimbatore.
+
+### CCTV Surveillance
+4K ColorVu IP cameras, 8/16/32 channel NVR/DVR, live remote mobile streaming,
+and Annual Maintenance Contracts. Brands: Hikvision, CP Plus, Dahua, EZVIZ.
+4-camera kit starts from ₹14,990.
+
+### Biometrics & Access Control
+Face recognition, fingerprint, and RFID card readers with HR/payroll integration.
+Magnetic door locks for server rooms and labs. Brands: eSSL, Realtime, ZKTeco.
+
+### Chip-Level Repair Lab
+In-house lab with digital microscopes, IR BGA rework stations, and oscilloscopes.
+Dead motherboard diagnosis, BGA reballing, short-circuit repair, BIOS reflashing.
+Inspection from ₹499.
+
+### Printers & Consumables
+Ink tank & laser printers, barcode printers, document scanners.
+Brands: Epson, Canon, Brother, HP, TVS-E.
+
+### Accounting & ERP Software
+Authorized partner for Busy Accounting and Tally Prime.
+GST e-way bill, e-invoicing setup, data migration, and staff training.
+
+## Brands We Carry
+Intel, AMD, ASUS, MSI, Gigabyte, ZOTAC, Corsair, Hikvision, D-Link, Epson,
+Western Digital, Samsung, Crucial, Ubiquiti, eSSL, HP, Dell, Lenovo, Acer,
+CP Plus, Dahua, Cooler Master, Seasonic, Kingston, LG, BenQ, Schneider,
+Cisco, Ruijie, Quick Heal, Microsoft, Busy, Tally.
+
+## Location & Directions
+240/A2B, Sarada Mill Rd, near Koushikha Hospital, Podanur, Coimbatore,
+Tamil Nadu 641023, India.
+Google Maps: https://maps.app.goo.gl/bZ98isZoDcdCNU1y7
+
+## Why Choose ICS?
+- 18+ years in business (since 2007)
+- GST-registered dealer with genuine tax invoices (ITC benefit)
+- Same-day delivery across Coimbatore & Tiruppur
+- 100% genuine brand-warranted components
+- Free 24-hour stress testing on every custom PC
+- In-house chip-level repair lab (not outsourced)
+- Free Coimbatore-wide site survey for networking & CCTV projects

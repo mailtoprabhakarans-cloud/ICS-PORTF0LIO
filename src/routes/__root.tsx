@@ -77,21 +77,57 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "ICS Computer Store | Computers, Networking & CCTV" },
+      { title: "ICS Computer Store | Computers, Networking & CCTV in Coimbatore" },
       {
         name: "description",
         content:
           "ICS Computer Store — computers, custom PC builds, networking, CCTV and IT services in Coimbatore since 2007.",
       },
       { name: "author", content: "ICS Computer Store" },
-      { property: "og:title", content: "ICS Computer Store | Computers, Networking & CCTV" },
+
+      /* ── Crawler / Robot Directives ───────────────────────── */
+      { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" },
+      { name: "googlebot", content: "index, follow, max-image-preview:large, max-snippet:-1" },
+      { name: "bingbot", content: "index, follow" },
+
+      /* ── Geo-Targeting (Local SEO) ───────────────────────── */
+      { name: "geo.region", content: "IN-TN" },
+      { name: "geo.placename", content: "Coimbatore" },
+      { name: "geo.position", content: "11.0004;76.9559" },
+      { name: "ICBM", content: "11.0004, 76.9559" },
+
+      /* ── Language & Content ──────────────────────────────── */
+      { httpEquiv: "content-language", content: "en-IN" },
+      { name: "language", content: "English" },
+      { name: "format-detection", content: "telephone=no" },
+
+      /* ── Branding ────────────────────────────────────────── */
+      { name: "theme-color", content: "#dc2626" },
+      { name: "msapplication-TileColor", content: "#dc2626" },
+      { name: "application-name", content: "ICS Computer Store" },
+
+      /* ── Open Graph (Global Fallback) ────────────────────── */
+      { property: "og:site_name", content: "ICS Computer Store" },
+      { property: "og:locale", content: "en_IN" },
+      { property: "og:title", content: "ICS Computer Store | Computers, Networking & CCTV in Coimbatore" },
       {
         property: "og:description",
         content:
           "ICS Computer Store — computers, custom PC builds, networking, CCTV and IT services in Coimbatore since 2007.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://icsstore.in" },
+      { property: "og:image", content: "https://icsstore.in/ics-logo.svg" },
+
+      /* ── Twitter Card (Global Fallback) ──────────────────── */
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "ICS Computer Store | Computers, Networking & CCTV" },
+      {
+        name: "twitter:description",
+        content:
+          "ICS Computer Store — computers, custom PC builds, networking, CCTV and IT services in Coimbatore since 2007.",
+      },
+      { name: "twitter:image", content: "https://icsstore.in/ics-logo.svg" },
     ],
     links: [
       {
@@ -107,6 +143,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
       { rel: "alternate icon", type: "image/png", href: "/favicon.png" },
       { rel: "apple-touch-icon", href: "/favicon.svg" },
+      { rel: "canonical", href: "https://icsstore.in" },
     ],
   }),
 
