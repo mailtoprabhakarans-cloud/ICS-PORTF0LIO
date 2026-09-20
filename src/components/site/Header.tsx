@@ -168,15 +168,15 @@ export default function Header() {
               transition={{ type: "spring", stiffness: 320 }}
               className="shrink-0 drop-shadow-sm"
             >
-              <IcsLogo className="size-9 sm:size-12 lg:size-14" />
+              <IcsLogo className="size-8 sm:size-12 lg:size-14" />
             </motion.div>
             <div className="flex flex-col justify-center min-w-0">
               <div className="flex items-baseline leading-none font-sans">
-                <span className="text-xl sm:text-[26px] lg:text-[28px] font-black tracking-tight text-[#DC1424]">
+                <span className="text-base min-[360px]:text-lg sm:text-[26px] lg:text-[28px] font-black tracking-tight text-[#DC1424]">
                   ICS
                 </span>
-                <span className="ml-1 sm:ml-1.5 text-base sm:text-[23px] lg:text-[25px] font-black tracking-tight text-slate-950 dark:text-white uppercase truncate">
-                  <span className="hidden xs:inline">COMPUTER </span>STORE
+                <span className="ml-1 sm:ml-1.5 text-[10.5px] min-[360px]:text-xs sm:text-[20px] lg:text-[25px] font-black tracking-tight text-slate-950 dark:text-white uppercase whitespace-nowrap">
+                  COMPUTER STORE
                 </span>
               </div>
               <div className="hidden sm:flex items-center gap-1 sm:gap-1.5 mt-1 font-sans text-[8px] sm:text-[9.5px] lg:text-[10.5px] font-extrabold tracking-[0.04em] text-blue-950 dark:text-sky-400 uppercase whitespace-nowrap">
