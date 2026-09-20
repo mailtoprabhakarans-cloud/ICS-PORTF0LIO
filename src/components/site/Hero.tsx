@@ -120,11 +120,11 @@ export default function Hero() {
       <div className="absolute inset-0 grid-dots opacity-40" />
 
       {/* Top Live Ticker Ribbon */}
-      <div className="relative border-b border-border/40 glass-card">
-        <div className="mx-auto flex max-w-[1800px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-12 2xl:px-16 py-2.5 text-xs sm:text-sm">
-          <div className="flex items-center gap-2.5">
-            <span className="flex items-center gap-1.5 rounded-full bg-brand-red/10 px-3 py-1 font-bold text-brand-red uppercase text-xs">
-              <Zap className="size-3.5" /> Live
+      <div className="relative border-b border-border/40 glass-card overflow-hidden">
+        <div className="mx-auto flex max-w-[1800px] items-center justify-between gap-4 px-3 sm:px-6 lg:px-12 2xl:px-16 py-2 sm:py-2.5 text-xs sm:text-sm">
+          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
+            <span className="flex items-center gap-1 sm:gap-1.5 rounded-full bg-brand-red/10 px-2.5 sm:px-3 py-0.5 sm:py-1 font-bold text-brand-red uppercase text-[10px] sm:text-xs shrink-0">
+              <Zap className="size-3 sm:size-3.5" /> Live
             </span>
             <AnimatePresence mode="wait">
               <motion.span
@@ -133,14 +133,14 @@ export default function Hero() {
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                 exit={{ opacity: 0, y: -10, filter: "blur(4px)" }}
                 transition={{ duration: 0.4 }}
-                className="font-semibold text-ink truncate"
+                className="font-semibold text-ink truncate min-w-0 flex-1 text-xs sm:text-sm"
               >
                 {TICKERS[tickerIdx]}
               </motion.span>
             </AnimatePresence>
           </div>
 
-          <div className="hidden items-center gap-4 text-muted-foreground font-medium md:flex">
+          <div className="hidden items-center gap-4 text-muted-foreground font-medium md:flex shrink-0">
             <span>GST Compliant</span>
             <span className="size-1 rounded-full bg-brand-blue" />
             <span>Zero No-Cost EMI Options</span>
@@ -150,7 +150,7 @@ export default function Hero() {
         </div>
       </div>
 
-      <div className="relative mx-auto grid max-w-[1800px] items-center gap-10 lg:gap-14 2xl:gap-20 px-4 sm:px-6 lg:px-12 2xl:px-16 py-12 sm:py-16 lg:py-24 2xl:py-28 lg:grid-cols-12">
+      <div className="relative mx-auto grid max-w-[1800px] items-center gap-10 lg:gap-14 2xl:gap-20 px-4 sm:px-6 lg:px-12 2xl:px-16 py-8 sm:py-16 lg:py-24 2xl:py-28 lg:grid-cols-12">
         {/* Left Column: Hero Copy & Actions */}
         <div className="lg:col-span-7 2xl:col-span-7">
           <AnimatePresence mode="wait">
@@ -165,9 +165,9 @@ export default function Hero() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="flex flex-wrap items-center gap-2.5"
+                className="flex flex-wrap items-center gap-2 sm:gap-2.5"
               >
-                <span className="inline-flex items-center gap-2 rounded-full border border-brand-blue/20 glass-card px-4 py-1.5 text-xs sm:text-sm font-bold tracking-wider text-brand-blue uppercase shadow-soft">
+                <span className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-brand-blue/20 glass-card px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-bold tracking-wider text-brand-blue uppercase shadow-soft">
                   <span className="relative grid size-2.5 place-items-center text-brand-red pulse-ring">
                     <span className="size-2.5 rounded-full bg-brand-red" />
                   </span>
@@ -178,7 +178,7 @@ export default function Hero() {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.3, type: "spring" }}
-                  className="rounded-full bg-neon-cyan/10 border border-neon-cyan/20 px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-neon-cyan"
+                  className="rounded-full bg-neon-cyan/10 border border-neon-cyan/20 px-3 sm:px-3.5 py-1 sm:py-1.5 text-xs sm:text-sm font-semibold text-neon-cyan"
                 >
                   {slide.badge}
                 </motion.span>
@@ -188,7 +188,7 @@ export default function Hero() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-                className="mt-6 font-display text-4xl sm:text-5xl md:text-6xl lg:text-[4.2rem] 2xl:text-[5rem] font-bold leading-[1.06] tracking-tight text-ink"
+                className="mt-5 sm:mt-6 font-display text-3xl sm:text-5xl md:text-6xl lg:text-[4.2rem] 2xl:text-[5rem] font-bold leading-[1.08] sm:leading-[1.06] tracking-tight text-ink"
               >
                 {slide.title.split(" ").slice(0, -2).join(" ")}{" "}
                 <span className="text-gradient-brand">{slide.title.split(" ").slice(-2).join(" ")}</span>
@@ -198,7 +198,7 @@ export default function Hero() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="mt-5 max-w-2xl text-base sm:text-lg lg:text-xl text-muted-foreground leading-relaxed"
+                className="mt-4 sm:mt-5 max-w-2xl text-sm sm:text-lg lg:text-xl text-muted-foreground leading-relaxed"
               >
                 {slide.sub}
               </motion.p>
@@ -210,11 +210,11 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.5 }}
-            className="mt-9 flex flex-wrap gap-4"
+            className="mt-7 sm:mt-9 flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4"
           >
             <a
               href={slide.href}
-              className="animate-shine group relative inline-flex items-center gap-2.5 rounded-full bg-gradient-brand px-9 py-4.5 text-sm sm:text-base font-semibold text-white shadow-lift transition-all duration-300 hover:scale-105 hover:shadow-[0_24px_60px_-16px_oklch(0.56_0.24_25/0.5)] active:scale-95"
+              className="animate-shine group relative inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-brand px-6 sm:px-9 py-3.5 sm:py-4.5 text-sm sm:text-base font-semibold text-white shadow-lift transition-all duration-300 hover:scale-105 hover:shadow-[0_24px_60px_-16px_oklch(0.56_0.24_25/0.5)] active:scale-95 text-center"
             >
               {slide.action}
               <ArrowRight className="size-4.5 transition-transform duration-300 group-hover:translate-x-1.5" />
@@ -222,7 +222,7 @@ export default function Hero() {
 
             <button
               onClick={() => openQuote("Hero Inquiry")}
-              className="group inline-flex items-center gap-2 rounded-full border border-ink/10 glass-card px-8 py-4.5 text-sm sm:text-base font-semibold text-ink shadow-soft transition-all duration-300 hover:border-brand-blue/40 hover:text-brand-blue hover:shadow-blue hover:scale-[1.02]"
+              className="group inline-flex items-center justify-center gap-2 rounded-full border border-ink/10 glass-card px-6 sm:px-8 py-3.5 sm:py-4.5 text-sm sm:text-base font-semibold text-ink shadow-soft transition-all duration-300 hover:border-brand-blue/40 hover:text-brand-blue hover:shadow-blue hover:scale-[1.02] text-center"
             >
               <Sparkles className="size-4 opacity-0 -ml-2 transition-all duration-300 group-hover:opacity-100 group-hover:ml-0 text-brand-blue" />
               Request Custom Quote
@@ -299,7 +299,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 30, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ delay: 0.6, type: "spring", stiffness: 200 }}
-              className="absolute -bottom-2 -left-2 rounded-2xl border border-border/40 glass-card-strong p-4 sm:p-5 shadow-soft"
+              className="absolute -bottom-2 left-2 sm:-left-2 right-2 sm:right-auto rounded-2xl border border-border/40 glass-card-strong p-3 sm:p-5 shadow-soft"
             >
               <div className="flex items-center gap-3">
                 <span className="grid size-10 place-items-center rounded-xl bg-brand-red/10 text-brand-red">

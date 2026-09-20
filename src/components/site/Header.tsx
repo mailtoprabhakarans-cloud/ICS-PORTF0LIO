@@ -93,61 +93,61 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40">
       {/* Top Utility Bar */}
-      <div className="bg-slate-950 text-xs sm:text-sm text-slate-200 transition-colors py-2 border-b border-white/10">
-        <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-2 px-4 sm:px-6 lg:px-12 2xl:px-16">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
+      <div className="bg-slate-950 text-xs sm:text-sm text-slate-200 transition-colors py-1.5 sm:py-2 border-b border-white/10 overflow-hidden">
+        <div className="mx-auto flex max-w-[1800px] items-center justify-between gap-2 px-3 sm:px-6 lg:px-12 2xl:px-16">
+          <div className="flex items-center gap-x-4 sm:gap-x-6 min-w-0">
             <a
               href={CONTACT.phoneHref}
-              className="group flex items-center gap-1.5 text-slate-200 transition-colors hover:text-neon-cyan"
+              className="group flex items-center gap-1.5 text-slate-200 transition-colors hover:text-neon-cyan shrink-0"
             >
-              <Phone className="size-4 text-brand-blue transition-transform group-hover:scale-110" />
-              <span className="font-semibold">{CONTACT.phone}</span>
+              <Phone className="size-3.5 sm:size-4 text-brand-blue transition-transform group-hover:scale-110" />
+              <span className="font-semibold text-xs sm:text-sm">{CONTACT.phone}</span>
             </a>
             <a
               href={`mailto:${CONTACT.email}`}
-              className="hidden items-center gap-1.5 text-slate-300 transition-colors hover:text-neon-cyan sm:flex"
+              className="hidden items-center gap-1.5 text-slate-300 transition-colors hover:text-neon-cyan md:flex shrink-0"
             >
-              <Mail className="size-4 text-brand-blue" />
+              <Mail className="size-3.5 sm:size-4 text-brand-blue" />
               <span>{CONTACT.email}</span>
             </a>
-            <span className="hidden items-center gap-1.5 md:flex text-slate-300">
-              <Clock className="size-4 text-brand-blue" />
+            <span className="hidden items-center gap-1.5 lg:flex text-slate-300 shrink-0">
+              <Clock className="size-3.5 sm:size-4 text-brand-blue" />
               <span>{CONTACT.hours}</span>
             </span>
           </div>
 
-            <div className="flex items-center gap-3">
-              {/* Public Order Tracking Button */}
-              <button
-                onClick={() => setIsTrackingOpen(true)}
-                className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1 text-xs font-semibold transition-colors"
-              >
-                <Truck className="size-3.5 text-brand-blue" />
-                <span>Track Order</span>
-              </button>
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Public Order Tracking Button */}
+            <button
+              onClick={() => setIsTrackingOpen(true)}
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 sm:px-3 py-0.5 sm:py-1 text-[11px] sm:text-xs font-semibold transition-colors"
+            >
+              <Truck className="size-3.5 text-brand-blue" />
+              <span>Track Order</span>
+            </button>
 
-              {/* Separate Admin Portal Link */}
-              <a
-                href="/admin"
-                className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 px-3 py-1 text-xs font-bold transition-colors"
-              >
-                <ShieldCheck className="size-3.5 text-indigo-400" />
-                <span>Admin Panel</span>
-              </a>
+            {/* Separate Admin Portal Link */}
+            <a
+              href="/admin"
+              className="hidden xs:inline-flex items-center gap-1.5 rounded-full bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 px-2.5 sm:px-3 py-0.5 sm:py-1 text-[11px] sm:text-xs font-bold transition-colors"
+            >
+              <ShieldCheck className="size-3 sm:size-3.5 text-indigo-400" />
+              <span>Admin</span>
+            </a>
 
-              <a
-                href={CONTACT.mapUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="hidden items-center gap-2 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-300 lg:inline-flex hover:bg-emerald-500/30 transition-colors"
-              >
-                <span className="size-2 animate-pulse rounded-full bg-emerald-400" />
-                Podanur, Coimbatore
-              </a>
-              <span className="flex items-center gap-1.5 rounded-full bg-gradient-brand px-3.5 py-1 text-xs font-bold tracking-wide text-white shadow-lift animate-pulse-subtle">
-                <Sparkles className="size-3.5" /> SINCE 2007
-              </span>
-            </div>
+            <a
+              href={CONTACT.mapUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="hidden items-center gap-2 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-300 lg:inline-flex hover:bg-emerald-500/30 transition-colors"
+            >
+              <span className="size-2 animate-pulse rounded-full bg-emerald-400" />
+              Podanur, Coimbatore
+            </a>
+            <span className="flex items-center gap-1 sm:gap-1.5 rounded-full bg-gradient-brand px-2.5 sm:px-3.5 py-0.5 sm:py-1 text-[10px] sm:text-xs font-bold tracking-wide text-white shadow-lift animate-pulse-subtle">
+              <Sparkles className="size-3 sm:size-3.5" /> SINCE 2007
+            </span>
+          </div>
         </div>
       </div>
 
@@ -157,29 +157,29 @@ export default function Header() {
           scrolled ? "shadow-md" : "shadow-xs"
         }`}
       >
-        <div className="mx-auto flex max-w-[1800px] items-center justify-between gap-3 sm:gap-6 px-3 sm:px-6 lg:px-12 2xl:px-16 py-2.5 sm:py-3.5">
+        <div className="mx-auto flex max-w-[1800px] items-center justify-between gap-2 sm:gap-6 px-3 sm:px-6 lg:px-12 2xl:px-16 py-2 sm:py-3.5">
           {/* Logo & Brand Name */}
           <a
             href="#top"
-            className="group flex shrink-0 items-center gap-3 select-none transition-opacity hover:opacity-95"
+            className="group flex shrink items-center gap-2 sm:gap-3 select-none transition-opacity hover:opacity-95 min-w-0"
           >
             <motion.div
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 320 }}
               className="shrink-0 drop-shadow-sm"
             >
-              <IcsLogo className="size-12 sm:size-13 lg:size-14" />
+              <IcsLogo className="size-9 sm:size-12 lg:size-14" />
             </motion.div>
-            <div className="flex flex-col justify-center shrink-0">
+            <div className="flex flex-col justify-center min-w-0">
               <div className="flex items-baseline leading-none font-sans">
-                <span className="text-2xl sm:text-[26px] lg:text-[28px] font-black tracking-tight text-[#DC1424]">
+                <span className="text-xl sm:text-[26px] lg:text-[28px] font-black tracking-tight text-[#DC1424]">
                   ICS
                 </span>
-                <span className="ml-1.5 text-xl sm:text-[23px] lg:text-[25px] font-black tracking-tight text-slate-950 dark:text-white uppercase">
-                  COMPUTER STORE
+                <span className="ml-1 sm:ml-1.5 text-base sm:text-[23px] lg:text-[25px] font-black tracking-tight text-slate-950 dark:text-white uppercase truncate">
+                  <span className="hidden xs:inline">COMPUTER </span>STORE
                 </span>
               </div>
-              <div className="flex items-center gap-1 sm:gap-1.5 mt-1 font-sans text-[8px] sm:text-[9.5px] lg:text-[10.5px] font-extrabold tracking-[0.04em] text-blue-950 dark:text-sky-400 uppercase whitespace-nowrap">
+              <div className="hidden sm:flex items-center gap-1 sm:gap-1.5 mt-1 font-sans text-[8px] sm:text-[9.5px] lg:text-[10.5px] font-extrabold tracking-[0.04em] text-blue-950 dark:text-sky-400 uppercase whitespace-nowrap">
                 <span>IT HARDWARE &amp; SOFTWARE</span>
                 <span className="text-slate-300 dark:text-slate-600 font-light px-0.5">|</span>
                 <span>CCTV &amp; SECURITY</span>
@@ -306,15 +306,15 @@ export default function Header() {
           </div>
 
           {/* Action Icons Right Section */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            {/* Theme Toggle (Circular & Minimal) */}
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            {/* Theme Toggle */}
             <motion.button
               onClick={toggleTheme}
               aria-label="Toggle Light and Dark Mode"
               whileHover={{ scale: 1.06 }}
               whileTap={{ scale: 0.94 }}
               title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
-              className="flex size-9 sm:size-10 items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+              className="flex size-8 sm:size-10 items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
             >
               {theme === "dark" ? (
                 <Sun className="size-4 sm:size-4.5 text-amber-400 fill-amber-400/20" />
@@ -323,16 +323,16 @@ export default function Header() {
               )}
             </motion.button>
 
-            {/* Wishlist */}
+            {/* Wishlist (Desktop / Tablet) */}
             <motion.button
               aria-label="Wishlist"
               title="View Wishlist"
               onClick={() => setIsWishlistOpen(true)}
               whileHover={{ scale: 1.06 }}
               whileTap={{ scale: 0.94 }}
-              className="relative flex size-9 sm:size-10 items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-red-500 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+              className="hidden sm:flex relative size-9 sm:size-10 items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-red-500 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
             >
-              <Heart className="size-4.5 stroke-[1.8]" />
+              <Heart className="size-4 sm:size-4.5 stroke-[1.8]" />
               {wishlist.length > 0 && (
                 <span className="absolute top-1 right-1 flex size-4 items-center justify-center rounded-full bg-red-600 text-[9px] font-black text-white ring-2 ring-white dark:ring-slate-900">
                   {wishlist.length}
@@ -357,18 +357,18 @@ export default function Header() {
               )}
             </motion.button>
 
-            {/* Cart with Badge */}
+            {/* Cart with Badge (Always Visible) */}
             <motion.button
               aria-label="Cart"
               title="Shopping Cart"
               onClick={() => setIsCartOpen(true)}
               whileHover={{ scale: 1.06 }}
               whileTap={{ scale: 0.94 }}
-              className="relative flex size-9 sm:size-10 items-center justify-center rounded-full text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+              className="relative flex size-8 sm:size-10 items-center justify-center rounded-full text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
             >
-              <ShoppingCart className="size-4.5 stroke-[1.8]" />
+              <ShoppingCart className="size-4 sm:size-4.5 stroke-[1.8]" />
               {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-black text-white ring-2 ring-white dark:ring-slate-900 shadow-xs animate-pulse-subtle">
+                <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 sm:h-4.5 sm:min-w-4.5 items-center justify-center rounded-full bg-red-600 px-1 text-[9px] sm:text-[10px] font-black text-white ring-2 ring-white dark:ring-slate-900 shadow-xs animate-pulse-subtle">
                   {cartCount}
                 </span>
               )}
@@ -382,7 +382,7 @@ export default function Header() {
                 onClick={openAccountDrawer}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 py-1.5 pr-3 pl-1.5 text-xs font-bold text-slate-800 dark:text-slate-100 hover:border-blue-600 transition-all"
+                className="hidden sm:flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 py-1.5 pr-3 pl-1.5 text-xs font-bold text-slate-800 dark:text-slate-100 hover:border-blue-600 transition-all"
               >
                 <div className="flex size-6 items-center justify-center rounded-full bg-gradient-brand text-[10px] font-black text-white shadow-xs">
                   {(profile?.full_name?.[0] || user.email?.[0] || "U").toUpperCase()}
@@ -398,7 +398,7 @@ export default function Header() {
                 onClick={() => openAuthModal("signin")}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-white dark:hover:bg-slate-700 transition-all shadow-2xs"
+                className="hidden sm:flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-white dark:hover:bg-slate-700 transition-all shadow-2xs"
               >
                 <User className="size-3.5 stroke-[2] text-brand-blue" />
                 <span className="hidden md:inline font-bold">Sign In</span>
@@ -410,7 +410,7 @@ export default function Header() {
               onClick={() => openQuote()}
               whileHover={{ scale: 1.04, y: -0.5 }}
               whileTap={{ scale: 0.96 }}
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold tracking-wide text-white shadow-sm shadow-blue-500/25 hover:shadow-md hover:shadow-blue-500/35 transition-all uppercase"
+              className="hidden lg:inline-flex items-center gap-1.5 rounded-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold tracking-wide text-white shadow-sm shadow-blue-500/25 hover:shadow-md hover:shadow-blue-500/35 transition-all uppercase"
             >
               <Sparkles className="size-3.5" />
               <span>Get a Quote</span>
@@ -418,8 +418,8 @@ export default function Header() {
 
             {/* Mobile Menu Trigger */}
             <motion.button
-              className="rounded-lg p-1.5 sm:p-2 text-ink xl:hidden hover:bg-accent transition-colors"
-              aria-label="Menu"
+              className="flex size-8 sm:size-9 items-center justify-center rounded-lg text-ink xl:hidden hover:bg-accent transition-colors shrink-0"
+              aria-label={mobile ? "Close menu" : "Open menu"}
               onClick={() => setMobile((v) => !v)}
               whileTap={{ scale: 0.9 }}
             >
@@ -542,10 +542,159 @@ export default function Header() {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.25 }}
-              className="xl:hidden border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden"
+              className="xl:hidden border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden"
             >
-              <div className="px-4 py-4 space-y-3 max-h-[75vh] overflow-y-auto">
-                <div className="space-y-1">
+              <div className="px-4 py-4 space-y-4 max-h-[82vh] overflow-y-auto">
+                {/* Mobile Search Bar */}
+                <div className="relative">
+                  <div className="flex w-full items-center rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/90 dark:bg-slate-800/80 px-3 py-2">
+                    <Search className="size-4 text-slate-400 shrink-0 mr-2" />
+                    <input
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search GPUs, CPUs, Laptops, CCTV..."
+                      className="w-full bg-transparent text-xs text-ink outline-none placeholder:text-slate-400 font-medium"
+                    />
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery("")}
+                        aria-label="Clear search"
+                        className="text-slate-400 p-0.5"
+                      >
+                        <X className="size-3.5" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Autocomplete in Mobile Drawer */}
+                  {searchResults.length > 0 && (
+                    <div className="mt-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2 shadow-lg space-y-1">
+                      {searchResults.map((prod) => (
+                        <div
+                          key={prod.id}
+                          onClick={() => {
+                            setQuickViewProduct(prod);
+                            setSearchQuery("");
+                            setMobile(false);
+                          }}
+                          className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
+                        >
+                          <img
+                            src={prod.image}
+                            alt={prod.name}
+                            className="size-9 rounded object-contain bg-slate-100 dark:bg-slate-800 p-0.5 shrink-0"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">
+                              {prod.name}
+                            </p>
+                            <p className="text-[11px] text-brand-red font-bold">
+                              ₹{prod.price.toLocaleString("en-IN")}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* User Account / Sign In on Mobile */}
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-3">
+                  {user ? (
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-brand text-xs font-black text-white shadow-xs">
+                          {(profile?.full_name?.[0] || user.email?.[0] || "U").toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                            {profile?.full_name || "ICS Customer"}
+                          </p>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                            {user.email}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setMobile(false);
+                          openAccountDrawer();
+                        }}
+                        className="rounded-full bg-blue-600 px-3 py-1.5 text-xs font-bold text-white shrink-0 shadow-xs"
+                      >
+                        Account
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between gap-2">
+                      <div>
+                        <p className="text-xs font-bold text-slate-900 dark:text-white">
+                          Sign In / Register
+                        </p>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                          Track orders & save custom PC builds
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setMobile(false);
+                          openAuthModal("signin");
+                        }}
+                        className="rounded-full bg-blue-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs shrink-0"
+                      >
+                        Sign In
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Quick Action Buttons Grid */}
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => {
+                      setMobile(false);
+                      setIsWishlistOpen(true);
+                    }}
+                    className="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-red-500 transition-colors"
+                  >
+                    <Heart className="size-4 text-red-500" />
+                    <span>Wishlist ({wishlist.length})</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setMobile(false);
+                      setIsTrackingOpen(true);
+                    }}
+                    className="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-brand-blue transition-colors"
+                  >
+                    <Truck className="size-4 text-brand-blue" />
+                    <span>Track Order</span>
+                  </button>
+
+                  <a
+                    href="/admin"
+                    onClick={() => setMobile(false)}
+                    className="flex items-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-50/50 dark:bg-indigo-950/30 p-2.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400"
+                  >
+                    <ShieldCheck className="size-4 text-indigo-500" />
+                    <span>Admin Portal</span>
+                  </a>
+
+                  <button
+                    onClick={() => {
+                      setMobile(false);
+                      openQuote("Mobile Inquiry");
+                    }}
+                    className="flex items-center gap-2 rounded-xl bg-gradient-brand p-2.5 text-xs font-bold text-white shadow-sm"
+                  >
+                    <Sparkles className="size-4" />
+                    <span>Get a Quote</span>
+                  </button>
+                </div>
+
+                {/* Quick Navigation Links */}
+                <div className="space-y-1 border-t border-slate-100 dark:border-slate-800 pt-3">
                   <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
                     Quick Navigation
                   </p>
@@ -561,9 +710,10 @@ export default function Header() {
                   ))}
                 </div>
 
+                {/* Categories Grid */}
                 <div className="border-t border-slate-100 dark:border-slate-800 pt-3">
                   <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
-                    Categories
+                    Hardware Categories
                   </p>
                   <div className="grid grid-cols-2 gap-1.5">
                     {MEGA_MENU.map((cat) => (
@@ -577,6 +727,18 @@ export default function Header() {
                       </a>
                     ))}
                   </div>
+                </div>
+
+                {/* Call / Contact Footer on Mobile Drawer */}
+                <div className="border-t border-slate-100 dark:border-slate-800 pt-3 flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
+                  <a
+                    href={CONTACT.phoneHref}
+                    className="flex items-center gap-1.5 text-slate-700 dark:text-slate-200 font-semibold"
+                  >
+                    <Phone className="size-3.5 text-brand-blue" />
+                    <span>{CONTACT.phone}</span>
+                  </a>
+                  <span>Mon–Sat 9:30 AM – 8 PM</span>
                 </div>
               </div>
             </motion.div>
