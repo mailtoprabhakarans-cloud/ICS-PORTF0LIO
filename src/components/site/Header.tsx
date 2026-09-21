@@ -33,6 +33,7 @@ import { useAuth } from "@/lib/auth-context";
 import { createOrderInBackend } from "@/lib/supabase-api";
 import type { DbOrder } from "@/lib/supabase";
 import { openRazorpayCheckout } from "@/lib/razorpay";
+import { sanitizeInput, sanitizePhone } from "@/lib/security";
 import { toast } from "sonner";
 import AdminPanelModal from "../admin/AdminPanelModal";
 import OrderTrackingModal from "./OrderTrackingModal";
@@ -860,10 +861,10 @@ function CartDrawer() {
         onSuccess: async (razorpayRes) => {
           const res = await createOrderInBackend({
             userId: user?.id,
-            customerName: custName.trim(),
-            phone: custPhone.trim(),
-            email: custEmail.trim() || user?.email,
-            deliveryAddress: custAddress.trim() || "Podanur, Coimbatore (Online Order)",
+            customerName: sanitizeInput(custName),
+            phone: sanitizePhone(custPhone),
+            email: custEmail.trim().toLowerCase() || user?.email,
+            deliveryAddress: sanitizeInput(custAddress) || "Podanur, Coimbatore (Online Order)",
             items: cart,
             subtotal: cartTotal,
             gstAmount: gstEstimate,
@@ -908,11 +909,11 @@ function CartDrawer() {
 
     const res = await createOrderInBackend({
       userId: user?.id,
-      customerName: custName.trim(),
-      phone: custPhone.trim(),
-      email: custEmail.trim() || user?.email,
+      customerName: sanitizeInput(custName),
+      phone: sanitizePhone(custPhone),
+      email: custEmail.trim().toLowerCase() || user?.email,
       deliveryAddress:
-        custAddress.trim() ||
+        sanitizeInput(custAddress) ||
         (paymentMode === "pickup"
           ? "Store Pickup in Podanur, Coimbatore"
           : "Coimbatore Doorstep Handover"),

@@ -69,6 +69,39 @@ create trigger on_auth_user_created
   for each row execute procedure public.handle_new_user();
 
 
+-- Helper function to check if the current requesting user is an authorized admin
+create or replace function public.is_admin_user()
+returns boolean as $$
+begin
+  return exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid() and profiles.is_admin = true
+  );
+end;
+$$ language plpgsql security definer;
+
+-- Trigger to prevent regular users from elevating their own profile to is_admin = true
+create or replace function public.protect_admin_flag()
+returns trigger as $$
+begin
+  if (new.is_admin is distinct from old.is_admin) then
+    if not exists (
+      select 1 from public.profiles
+      where profiles.id = auth.uid() and profiles.is_admin = true
+    ) then
+      new.is_admin = old.is_admin;
+    end if;
+  end if;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists on_profile_protect_admin on public.profiles;
+create trigger on_profile_protect_admin
+  before update on public.profiles
+  for each row execute procedure public.protect_admin_flag();
+
+
 -- ==============================================================================
 -- 2. ORDERS TABLE (Customer Orders & Live 4-Milestone Tracking Progress)
 -- ==============================================================================
@@ -98,20 +131,46 @@ alter table public.orders add column if not exists payment_status text default '
 
 alter table public.orders enable row level security;
 
+-- Customers can view only their own orders; verified Admins can view all orders
 drop policy if exists "Users can view their own orders" on public.orders;
 create policy "Users can view their own orders"
   on public.orders for select
-  using (auth.uid() = user_id or auth.uid() is null);
+  using (
+    (auth.uid() is not null and auth.uid() = user_id)
+    or public.is_admin_user()
+  );
 
+-- Customers can insert new orders securely
 drop policy if exists "Anyone can insert orders" on public.orders;
 create policy "Anyone can insert orders"
   on public.orders for insert
   with check (true);
 
+-- ONLY verified Admins can update orders and tracking milestones
 drop policy if exists "Admins can update orders" on public.orders;
 create policy "Admins can update orders"
   on public.orders for update
-  using (true);
+  using (public.is_admin_user());
+
+-- Secure Public Tracking RPC: Returns only a single order matching the exact Tracking ID
+create or replace function public.track_order_secure(target_order_id text)
+returns jsonb as $$
+declare
+  order_record record;
+begin
+  select id, customer_name, phone, delivery_address, items, subtotal, gst_amount, grand_total, payment_method, payment_status, payment_id, status, tracking_step, estimated_delivery, created_at
+  into order_record
+  from public.orders
+  where upper(trim(id)) = upper(trim(target_order_id))
+  limit 1;
+
+  if not found then
+    return null;
+  end if;
+
+  return to_jsonb(order_record);
+end;
+$$ language plpgsql security definer;
 
 
 -- ==============================================================================
@@ -137,15 +196,20 @@ create policy "Anyone can submit quotes"
   on public.quotes for insert
   with check (true);
 
+-- Only owner or admin can view quotes
 drop policy if exists "Users can view their own quotes" on public.quotes;
 create policy "Users can view their own quotes"
   on public.quotes for select
-  using (auth.uid() = user_id or auth.uid() is null);
+  using (
+    (auth.uid() is not null and auth.uid() = user_id)
+    or public.is_admin_user()
+  );
 
+-- ONLY verified Admins can update quotes
 drop policy if exists "Admins can update quotes" on public.quotes;
 create policy "Admins can update quotes"
   on public.quotes for update
-  using (true);
+  using (public.is_admin_user());
 
 
 -- ==============================================================================
@@ -168,15 +232,47 @@ create table if not exists public.repair_tickets (
 
 alter table public.repair_tickets enable row level security;
 
+-- Customers can view their own tickets; Admins can view all tickets
+drop policy if exists "Users can view their own repair tickets" on public.repair_tickets;
 drop policy if exists "Anyone can look up repair tickets by ID" on public.repair_tickets;
-create policy "Anyone can look up repair tickets by ID"
+create policy "Users can view their own repair tickets"
   on public.repair_tickets for select
-  using (true);
+  using (
+    (auth.uid() is not null and auth.uid() = user_id)
+    or public.is_admin_user()
+  );
 
 drop policy if exists "Authenticated users can create repair requests" on public.repair_tickets;
 create policy "Authenticated users can create repair requests"
   on public.repair_tickets for insert
   with check (true);
+
+-- ONLY verified Admins can update repair tickets
+drop policy if exists "Admins can update repair tickets" on public.repair_tickets;
+create policy "Admins can update repair tickets"
+  on public.repair_tickets for update
+  using (public.is_admin_user());
+
+-- Secure Public Repair Tracking RPC
+create or replace function public.track_repair_ticket_secure(target_ticket_id text)
+returns jsonb as $$
+declare
+  ticket_record record;
+begin
+  select id, customer_name, phone, device_name, issue_description, status, estimated_delivery, estimated_cost, created_at, updated_at, steps
+  into ticket_record
+  from public.repair_tickets
+  where upper(trim(id)) = upper(trim(target_ticket_id))
+  limit 1;
+
+  if not found then
+    return null;
+  end if;
+
+  return to_jsonb(ticket_record);
+end;
+$$ language plpgsql security definer;
+
 
 -- Initial Demo Repair Tickets
 insert into public.repair_tickets (id, customer_name, phone, device_name, issue_description, status, estimated_delivery, steps)

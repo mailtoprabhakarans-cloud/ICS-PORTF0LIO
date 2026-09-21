@@ -300,6 +300,18 @@ export async function lookupRepairTicket(
   }
 
   try {
+    // Try secure RPC function first
+    try {
+      const rpcRes = await (supabase.rpc as any)("track_repair_ticket_secure", {
+        target_ticket_id: normalizedId,
+      });
+      if (!rpcRes.error && rpcRes.data) {
+        return { success: true, ticket: rpcRes.data as DbRepairTicket };
+      }
+    } catch {
+      // fallback
+    }
+
     const { data, error } = await supabase
       .from("repair_tickets")
       .select("*")
@@ -552,6 +564,18 @@ export async function lookupOrderById(
   }
 
   try {
+    // Try secure RPC function first
+    try {
+      const rpcRes = await (supabase.rpc as any)("track_order_secure", {
+        target_order_id: normId,
+      });
+      if (!rpcRes.error && rpcRes.data) {
+        return { success: true, order: rpcRes.data as import("./supabase").DbOrder };
+      }
+    } catch {
+      // fallback
+    }
+
     const { data, error } = await supabase
       .from("orders")
       .select("*")

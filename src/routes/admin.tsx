@@ -47,8 +47,12 @@ import { AppProvider } from "@/lib/store";
 import type { DbOrder, DbQuote, DbRepairTicket, UserProfile } from "@/lib/supabase";
 import IcsLogo from "@/components/site/IcsLogo";
 import { Toaster, toast } from "sonner";
-
-const ADMIN_SECURITY_PIN = "admin123";
+import {
+  verifyAdminPin,
+  getAdminLockoutStatus,
+  recordFailedAdminPinAttempt,
+  resetAdminPinAttempts,
+} from "@/lib/security";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -75,6 +79,7 @@ function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [pinInput, setPinInput] = useState("");
   const [pinError, setPinError] = useState(false);
+  const [lockoutSeconds, setLockoutSeconds] = useState(0);
 
   const [activeTab, setActiveTab] = useState<"orders" | "services" | "products" | "users" | "quotes" | "overview">("orders");
 
@@ -132,22 +137,66 @@ function AdminDashboard() {
     setLoading(false);
   };
 
+  // Check lockout on mount and tick countdown
+  useEffect(() => {
+    const status = getAdminLockoutStatus();
+    if (status.isLocked) {
+      setLockoutSeconds(status.remainingSeconds);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (lockoutSeconds <= 0) return;
+    const timer = setInterval(() => {
+      setLockoutSeconds((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [lockoutSeconds]);
+
+  // Authenticate automatically if signed-in profile has admin flag
   useEffect(() => {
     if (profile?.is_admin) {
       setIsAuthenticated(true);
     }
-    refreshData();
   }, [profile]);
+
+  // SECURE: Fetch sensitive business & customer data ONLY after authentication is verified
+  useEffect(() => {
+    if (isAuthenticated) {
+      refreshData();
+    }
+  }, [isAuthenticated]);
 
   const handlePinSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (pinInput.trim() === ADMIN_SECURITY_PIN || pinInput.trim() === "1234") {
+    const lockout = getAdminLockoutStatus();
+    if (lockout.isLocked) {
+      setLockoutSeconds(lockout.remainingSeconds);
+      toast.error(`Security Lockout: Please wait ${lockout.remainingSeconds}s before trying again.`);
+      return;
+    }
+
+    if (verifyAdminPin(pinInput)) {
+      resetAdminPinAttempts();
       setIsAuthenticated(true);
       setPinError(false);
-      toast.success("Admin access granted");
+      setLockoutSeconds(0);
+      toast.success("Admin identity verified");
     } else {
+      const attemptRes = recordFailedAdminPinAttempt();
       setPinError(true);
-      toast.error("Incorrect Admin PIN");
+      if (attemptRes.isLocked) {
+        setLockoutSeconds(attemptRes.remainingSeconds);
+        toast.error(`3 incorrect attempts! Admin access locked for 60 seconds.`);
+      } else {
+        toast.error("Incorrect Admin Security PIN");
+      }
     }
   };
 
@@ -357,7 +406,7 @@ function AdminDashboard() {
           <form onSubmit={handlePinSubmit} className="space-y-4">
             <div>
               <label className="mb-1.5 block text-[11px] font-bold tracking-wider text-slate-600 uppercase">
-                Admin Passcode / PIN
+                Admin Security PIN
               </label>
               <div className="flex items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 transition-all focus-within:border-blue-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-600/15">
                 <KeyRound className="size-4.5 text-slate-400 mr-2.5" />
@@ -365,22 +414,28 @@ function AdminDashboard() {
                   required
                   type="password"
                   autoFocus
+                  disabled={lockoutSeconds > 0}
                   value={pinInput}
                   onChange={(e) => setPinInput(e.target.value)}
-                  placeholder="Enter PIN (Default: admin123)"
-                  className="w-full bg-transparent text-sm text-slate-900 placeholder:text-slate-400 outline-none font-medium"
+                  placeholder={lockoutSeconds > 0 ? `Locked for ${lockoutSeconds}s` : "Enter Admin Security PIN"}
+                  className="w-full bg-transparent text-sm text-slate-900 placeholder:text-slate-400 outline-none font-medium disabled:opacity-50"
                 />
               </div>
-              {pinError && (
-                <p className="mt-1.5 text-xs font-semibold text-red-600">
-                  Incorrect Passcode. Default is <span className="font-mono font-bold">admin123</span>
+              {lockoutSeconds > 0 ? (
+                <p className="mt-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-200/80 rounded-xl p-2.5">
+                  🔒 Security Lockout Active: Too many failed PIN attempts. Wait <span className="font-bold">{lockoutSeconds} seconds</span> to retry.
                 </p>
-              )}
+              ) : pinError ? (
+                <p className="mt-1.5 text-xs font-semibold text-red-600">
+                  Incorrect Security PIN. Attempts are rate-limited.
+                </p>
+              ) : null}
             </div>
 
             <button
               type="submit"
-              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3.5 text-sm font-bold text-white shadow-md shadow-blue-600/20 hover:from-blue-700 hover:to-indigo-700 transition-all"
+              disabled={lockoutSeconds > 0}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3.5 text-sm font-bold text-white shadow-md shadow-blue-600/20 hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-50"
             >
               <ShieldCheck className="size-4" /> Unlock Admin Panel
             </button>
