@@ -169,13 +169,24 @@ export default function OrderTrackingModal({
               >
                 <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                   <div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-mono text-sm font-bold text-blue-600">
                         {foundOrder.id}
                       </span>
                       <span className="rounded-full bg-emerald-100 border border-emerald-200 px-2.5 py-0.5 text-[10.5px] font-bold text-emerald-700">
                         {foundOrder.status}
                       </span>
+                      {foundOrder.payment_id ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-200 px-2 py-0.5 text-[10px] font-bold text-blue-700">
+                          <CheckCircle2 className="size-3 text-blue-600" />
+                          Paid via Razorpay ({foundOrder.payment_id})
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+                          <Clock className="size-3 text-amber-600" />
+                          {foundOrder.payment_method || "Pay on Delivery"}
+                        </span>
+                      )}
                     </div>
                     <p className="text-xs text-slate-500 mt-1">
                       Customer: {foundOrder.customer_name} · {foundOrder.delivery_address}

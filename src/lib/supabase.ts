@@ -93,8 +93,12 @@ export type DbOrder = {
   gst_amount: number;
   grand_total: number;
   payment_method: string;
+  payment_id?: string | undefined;
+  payment_status?: "Paid" | "Pending" | "Failed" | string | undefined;
+  razorpay_order_id?: string | undefined;
   status: "Order Placed" | "Shipped" | "Assembled & Tested" | "Out for Delivery" | "Delivered" | "Cancelled";
   tracking_step: number;
   estimated_delivery: string;
   created_at: string;
 };
+

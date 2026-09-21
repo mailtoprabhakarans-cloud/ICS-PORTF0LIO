@@ -404,6 +404,9 @@ export async function createOrderInBackend(order: {
   gstAmount: number;
   grandTotal: number;
   paymentMethod?: string | undefined;
+  paymentId?: string | undefined;
+  paymentStatus?: "Paid" | "Pending" | "Failed" | string | undefined;
+  razorpayOrderId?: string | undefined;
 }): Promise<{ success: boolean; order?: import("./supabase").DbOrder; error?: string | undefined }> {
   const orderId = `ICS-ORD-${Math.floor(1000 + Math.random() * 9000)}`;
 
@@ -418,7 +421,10 @@ export async function createOrderInBackend(order: {
     subtotal: order.subtotal,
     gst_amount: order.gstAmount,
     grand_total: order.grandTotal,
-    payment_method: order.paymentMethod || "WhatsApp / Store UPI",
+    payment_method: order.paymentMethod || "Razorpay Online (UPI/Cards)",
+    payment_id: order.paymentId,
+    payment_status: order.paymentStatus || (order.paymentId ? "Paid" : "Pending"),
+    razorpay_order_id: order.razorpayOrderId,
     status: "Order Placed",
     tracking_step: 1,
     estimated_delivery: "Within 24 Hours in Coimbatore",
@@ -435,28 +441,33 @@ export async function createOrderInBackend(order: {
   }
 
   try {
+    const insertPayload: Record<string, any> = {
+      id: newOrder.id,
+      user_id: newOrder.user_id || null,
+      customer_name: newOrder.customer_name,
+      phone: newOrder.phone,
+      email: newOrder.email || null,
+      delivery_address: newOrder.delivery_address || null,
+      items: newOrder.items,
+      subtotal: newOrder.subtotal,
+      gst_amount: newOrder.gst_amount,
+      grand_total: newOrder.grand_total,
+      payment_method: newOrder.payment_method,
+      payment_id: newOrder.payment_id || null,
+      payment_status: newOrder.payment_status || "Pending",
+      status: newOrder.status,
+      tracking_step: newOrder.tracking_step,
+      estimated_delivery: newOrder.estimated_delivery,
+    };
+
     const { data, error } = await supabase
       .from("orders")
-      .insert({
-        id: newOrder.id,
-        user_id: newOrder.user_id || null,
-        customer_name: newOrder.customer_name,
-        phone: newOrder.phone,
-        email: newOrder.email || null,
-        delivery_address: newOrder.delivery_address || null,
-        items: newOrder.items,
-        subtotal: newOrder.subtotal,
-        gst_amount: newOrder.gst_amount,
-        grand_total: newOrder.grand_total,
-        payment_method: newOrder.payment_method,
-        status: newOrder.status,
-        tracking_step: newOrder.tracking_step,
-        estimated_delivery: newOrder.estimated_delivery,
-      })
+      .insert(insertPayload)
       .select()
       .single();
 
     if (error) {
+      console.warn("Supabase orders insert warning (fallback to local):", error.message);
       // Fallback save locally if table not migrated yet
       const localOrders: import("./supabase").DbOrder[] = JSON.parse(
         localStorage.getItem("ics_user_orders") || "[]",

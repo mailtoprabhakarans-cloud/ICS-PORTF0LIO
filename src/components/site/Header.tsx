@@ -1,16 +1,21 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  Banknote,
+  Building2,
   CheckCircle2,
   ChevronDown,
   Clock,
+  CreditCard,
   GitCompareArrows,
   Heart,
+  Lock,
   Mail,
   MapPin,
   Menu,
   Moon,
   Phone,
+  QrCode,
   Search,
   ShieldCheck,
   ShoppingCart,
@@ -18,6 +23,7 @@ import {
   Sun,
   Truck,
   User,
+  Wallet,
   X,
 } from "lucide-react";
 import IcsLogo from "./IcsLogo";
@@ -26,6 +32,7 @@ import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth-context";
 import { createOrderInBackend } from "@/lib/supabase-api";
 import type { DbOrder } from "@/lib/supabase";
+import { openRazorpayCheckout } from "@/lib/razorpay";
 import { toast } from "sonner";
 import AdminPanelModal from "../admin/AdminPanelModal";
 import OrderTrackingModal from "./OrderTrackingModal";
@@ -809,7 +816,7 @@ function CartDrawer() {
   const [custPhone, setCustPhone] = useState("");
   const [custEmail, setCustEmail] = useState("");
   const [custAddress, setCustAddress] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("Cash / Card on Delivery (Coimbatore)");
+  const [paymentMode, setPaymentMode] = useState<"razorpay" | "cod" | "pickup" | "neft">("razorpay");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdOrder, setCreatedOrder] = useState<DbOrder | null>(null);
 
@@ -838,18 +845,83 @@ function CartDrawer() {
       return;
     }
 
+    // Online Razorpay Payment Flow
+    if (paymentMode === "razorpay") {
+      setIsSubmitting(true);
+      const preOrderId = `ICS-ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+
+      await openRazorpayCheckout({
+        amount: grandTotal,
+        orderId: preOrderId,
+        customerName: custName.trim(),
+        email: custEmail.trim() || user?.email,
+        phone: custPhone.trim(),
+        description: `Payment for ${cart.length} item(s) (incl. 18% GST)`,
+        onSuccess: async (razorpayRes) => {
+          const res = await createOrderInBackend({
+            userId: user?.id,
+            customerName: custName.trim(),
+            phone: custPhone.trim(),
+            email: custEmail.trim() || user?.email,
+            deliveryAddress: custAddress.trim() || "Podanur, Coimbatore (Online Order)",
+            items: cart,
+            subtotal: cartTotal,
+            gstAmount: gstEstimate,
+            grandTotal: grandTotal,
+            paymentMethod: "Razorpay Online (UPI/Cards)",
+            paymentId: razorpayRes.razorpay_payment_id,
+            paymentStatus: "Paid",
+            razorpayOrderId: razorpayRes.razorpay_order_id,
+          });
+          setIsSubmitting(false);
+
+          if (res.success && res.order) {
+            setCreatedOrder(res.order);
+            setCheckoutStep("confirmed");
+            clearCart();
+            toast.success("Payment Received & Order Placed!", {
+              description: `Payment ID: ${razorpayRes.razorpay_payment_id}`,
+            });
+          } else {
+            toast.error("Failed to record order", { description: res.error });
+          }
+        },
+        onDismiss: () => {
+          setIsSubmitting(false);
+          toast.info("Payment cancelled or closed. You can retry or choose Cash on Delivery.");
+        },
+        onError: (err) => {
+          setIsSubmitting(false);
+          toast.error("Payment Error", { description: err.message });
+        },
+      });
+      return;
+    }
+
+    // Offline / COD / Store Pickup / NEFT Flow
     setIsSubmitting(true);
+    const methodLabels: Record<string, string> = {
+      cod: "Cash / Card on Delivery (Coimbatore)",
+      pickup: "Store Desk Pickup & Pay (Podanur, Coimbatore)",
+      neft: "Direct Bank NEFT / RTGS (B2B Tax Invoice)",
+    };
+
     const res = await createOrderInBackend({
       userId: user?.id,
       customerName: custName.trim(),
       phone: custPhone.trim(),
       email: custEmail.trim() || user?.email,
-      deliveryAddress: custAddress.trim() || "Store Pickup in Podanur, Coimbatore",
+      deliveryAddress:
+        custAddress.trim() ||
+        (paymentMode === "pickup"
+          ? "Store Pickup in Podanur, Coimbatore"
+          : "Coimbatore Doorstep Handover"),
       items: cart,
       subtotal: cartTotal,
       gstAmount: gstEstimate,
       grandTotal: grandTotal,
-      paymentMethod: paymentMethod,
+      paymentMethod: methodLabels[paymentMode] || "Cash on Delivery",
+      paymentStatus: "Pending (Pay on Delivery)",
     });
     setIsSubmitting(false);
 
@@ -1088,19 +1160,141 @@ function CartDrawer() {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
-                      Payment Mode
+                    <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1.5 flex items-center justify-between">
+                      <span>Choose Payment Mode *</span>
+                      <span className="text-[10px] text-emerald-700 bg-emerald-50 font-bold px-2 py-0.5 rounded-full border border-emerald-200/60 flex items-center gap-1">
+                        <ShieldCheck className="size-3" /> 256-bit Encrypted
+                      </span>
                     </label>
-                    <select
-                      value={paymentMethod}
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs sm:text-sm text-slate-900 outline-none focus:border-blue-600 focus:bg-white font-medium"
-                    >
-                      <option value="Cash / Card on Delivery (Coimbatore)">Cash / Card on Delivery (Coimbatore)</option>
-                      <option value="UPI / QR Code (GooglePay/PhonePe)">UPI / QR Code on Handover</option>
-                      <option value="Store Desk Payment (Podanur, Coimbatore)">Store Desk Pickup & Pay</option>
-                      <option value="Direct Bank NEFT / RTGS (B2B Tax Invoice)">Direct Bank NEFT / RTGS (B2B Invoice)</option>
-                    </select>
+
+                    <div className="space-y-2">
+                      {/* Option 1: Razorpay Online (UPI, Cards, NetBanking) */}
+                      <label
+                        className={`flex items-start gap-3 p-3 rounded-2xl border cursor-pointer transition-all ${
+                          paymentMode === "razorpay"
+                            ? "border-blue-600 bg-blue-50/70 shadow-xs ring-2 ring-blue-600/20"
+                            : "border-slate-200 bg-white hover:border-slate-300"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="paymentMode"
+                          value="razorpay"
+                          checked={paymentMode === "razorpay"}
+                          onChange={() => setPaymentMode("razorpay")}
+                          className="mt-1 text-blue-600 focus:ring-blue-500"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                              <CreditCard className="size-3.5 text-blue-600" />
+                              Razorpay Online Gateway
+                            </span>
+                            <span className="rounded-md bg-gradient-to-r from-blue-600 to-indigo-600 px-1.5 py-0.5 text-[9px] font-extrabold uppercase text-white shadow-xs">
+                              Recommended
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-600 mt-0.5">
+                            Instant UPI (GPay, PhonePe, Paytm), Credit / Debit Cards, NetBanking & Wallets
+                          </p>
+                          <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                            <span className="text-[10px] font-semibold text-slate-700 bg-white px-1.5 py-0.5 rounded border border-slate-200">
+                              UPI
+                            </span>
+                            <span className="text-[10px] font-semibold text-slate-700 bg-white px-1.5 py-0.5 rounded border border-slate-200">
+                              Google Pay
+                            </span>
+                            <span className="text-[10px] font-semibold text-slate-700 bg-white px-1.5 py-0.5 rounded border border-slate-200">
+                              PhonePe
+                            </span>
+                            <span className="text-[10px] font-semibold text-slate-700 bg-white px-1.5 py-0.5 rounded border border-slate-200">
+                              Visa / MC / RuPay
+                            </span>
+                          </div>
+                        </div>
+                      </label>
+
+                      {/* Option 2: Cash / Card on Delivery */}
+                      <label
+                        className={`flex items-start gap-3 p-3 rounded-2xl border cursor-pointer transition-all ${
+                          paymentMode === "cod"
+                            ? "border-blue-600 bg-blue-50/70 shadow-xs ring-2 ring-blue-600/20"
+                            : "border-slate-200 bg-white hover:border-slate-300"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="paymentMode"
+                          value="cod"
+                          checked={paymentMode === "cod"}
+                          onChange={() => setPaymentMode("cod")}
+                          className="mt-1 text-blue-600 focus:ring-blue-500"
+                        />
+                        <div className="flex-1">
+                          <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                            <Banknote className="size-3.5 text-emerald-600" />
+                            Cash / Card on Handover (Coimbatore)
+                          </span>
+                          <p className="text-[11px] text-slate-500 mt-0.5">
+                            Pay via Cash or card swipe machine when order reaches doorstep
+                          </p>
+                        </div>
+                      </label>
+
+                      {/* Option 3: Store Desk Pickup & Pay */}
+                      <label
+                        className={`flex items-start gap-3 p-3 rounded-2xl border cursor-pointer transition-all ${
+                          paymentMode === "pickup"
+                            ? "border-blue-600 bg-blue-50/70 shadow-xs ring-2 ring-blue-600/20"
+                            : "border-slate-200 bg-white hover:border-slate-300"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="paymentMode"
+                          value="pickup"
+                          checked={paymentMode === "pickup"}
+                          onChange={() => setPaymentMode("pickup")}
+                          className="mt-1 text-blue-600 focus:ring-blue-500"
+                        />
+                        <div className="flex-1">
+                          <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                            <MapPin className="size-3.5 text-orange-500" />
+                            Store Desk Pickup & Pay (Podanur)
+                          </span>
+                          <p className="text-[11px] text-slate-500 mt-0.5">
+                            Collect in person at our Podanur Main Rd counter with live inspection
+                          </p>
+                        </div>
+                      </label>
+
+                      {/* Option 4: Direct Bank NEFT / RTGS (B2B Invoice) */}
+                      <label
+                        className={`flex items-start gap-3 p-3 rounded-2xl border cursor-pointer transition-all ${
+                          paymentMode === "neft"
+                            ? "border-blue-600 bg-blue-50/70 shadow-xs ring-2 ring-blue-600/20"
+                            : "border-slate-200 bg-white hover:border-slate-300"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="paymentMode"
+                          value="neft"
+                          checked={paymentMode === "neft"}
+                          onChange={() => setPaymentMode("neft")}
+                          className="mt-1 text-blue-600 focus:ring-blue-500"
+                        />
+                        <div className="flex-1">
+                          <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                            <Building2 className="size-3.5 text-slate-700" />
+                            Direct Bank NEFT / RTGS (B2B Tax Invoice)
+                          </span>
+                          <p className="text-[11px] text-slate-500 mt-0.5">
+                            Corporate bank transfer against official GST Tax Invoice
+                          </p>
+                        </div>
+                      </label>
+                    </div>
                   </div>
                 </div>
 
@@ -1108,10 +1302,24 @@ function CartDrawer() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3.5 text-sm font-bold text-white shadow-md shadow-blue-600/20 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3.5 text-sm font-bold text-white shadow-md shadow-blue-600/25 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 transition-all hover:scale-[1.01] active:scale-[0.99]"
                   >
-                    <CheckCircle2 className="size-4" />
-                    {isSubmitting ? "Recording Order in Database..." : "Confirm & Place Order Now"}
+                    {isSubmitting ? (
+                      <span className="inline-flex items-center gap-2">
+                        <span className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        Processing...
+                      </span>
+                    ) : paymentMode === "razorpay" ? (
+                      <>
+                        <Lock className="size-4" />
+                        Pay ₹{grandTotal.toLocaleString("en-IN")} via Razorpay
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="size-4" />
+                        Confirm & Place Order (Pay Later)
+                      </>
+                    )}
                   </button>
 
                   <button
@@ -1136,10 +1344,12 @@ function CartDrawer() {
                   Your order has been recorded into the live database. You can track progress in real-time.
                 </p>
 
-                <div className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left text-xs space-y-2">
-                  <div className="flex justify-between">
+                <div className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left text-xs space-y-2.5">
+                  <div className="flex justify-between items-center">
                     <span className="text-slate-500 font-bold uppercase">Order Tracking ID:</span>
-                    <span className="font-mono font-bold text-blue-600">{createdOrder.id}</span>
+                    <span className="font-mono font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200/60">
+                      {createdOrder.id}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500 font-bold uppercase">Customer:</span>
@@ -1148,6 +1358,22 @@ function CartDrawer() {
                   <div className="flex justify-between">
                     <span className="text-slate-500 font-bold uppercase">Total Amount:</span>
                     <span className="font-bold text-red-600">₹{Number(createdOrder.grand_total).toLocaleString("en-IN")}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500 font-bold uppercase">Payment Mode:</span>
+                    <span className="font-semibold text-slate-800">{createdOrder.payment_method}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500 font-bold uppercase">Payment Status:</span>
+                    {createdOrder.payment_id ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px] px-2.5 py-0.5">
+                        <CheckCircle2 className="size-3" /> Paid ({createdOrder.payment_id})
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px] px-2.5 py-0.5">
+                        <Clock className="size-3" /> Pay on Handover
+                      </span>
+                    )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500 font-bold uppercase">Estimated Delivery:</span>

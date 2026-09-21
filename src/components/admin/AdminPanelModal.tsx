@@ -474,19 +474,28 @@ export default function AdminPanelModal({
                       >
                         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3">
                           <div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <span className="font-mono text-sm font-bold text-blue-600">
                                 {order.id}
                               </span>
                               <span className="rounded-full bg-blue-100 text-blue-700 border border-blue-200 px-2.5 py-0.5 text-[10.5px] font-bold uppercase">
                                 {order.status} (Step {order.tracking_step || 1}/4)
                               </span>
+                              {order.payment_id ? (
+                                <span className="rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold">
+                                  ✓ Paid (Razorpay: {order.payment_id})
+                                </span>
+                              ) : (
+                                <span className="rounded-full bg-amber-100 text-amber-800 border border-amber-200 px-2 py-0.5 text-[10px] font-bold">
+                                  ⏳ {order.payment_method || "Pay on Delivery"}
+                                </span>
+                              )}
                             </div>
                             <p className="text-xs text-slate-800 font-semibold mt-1">
                               {order.customer_name} · 📞 {order.phone}
                             </p>
                             <p className="text-[11px] text-slate-500">
-                              📍 {order.delivery_address || "Coimbatore Store Pickup"}
+                              📍 {order.delivery_address || "Coimbatore Store Pickup"} · Mode: <span className="font-medium text-slate-700">{order.payment_method}</span>
                             </p>
                           </div>
 

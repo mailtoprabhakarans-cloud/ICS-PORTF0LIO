@@ -208,13 +208,22 @@ export default function UserAccountDrawer() {
                         {/* Order Header */}
                         <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
                           <div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1.5 flex-wrap">
                               <span className="font-mono text-xs font-bold text-brand-blue">
                                 {order.id}
                               </span>
                               <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
                                 {order.status === "Assembled & Tested" ? (isService ? "Assembly & Testing" : "Shipped") : order.status}
                               </span>
+                              {order.payment_id ? (
+                                <span className="rounded-full bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:text-blue-400">
+                                  Paid (Razorpay)
+                                </span>
+                              ) : (
+                                <span className="rounded-full bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                                  {order.payment_method?.includes("Cash") ? "COD" : "Pay on Handover"}
+                                </span>
+                              )}
                             </div>
                             <span className="text-[11px] text-muted-foreground">
                               Placed on {new Date(order.created_at).toLocaleDateString("en-IN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
