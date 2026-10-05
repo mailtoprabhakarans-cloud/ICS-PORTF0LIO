@@ -117,8 +117,9 @@ create table if not exists public.orders (
   gst_amount numeric not null,
   grand_total numeric not null,
   payment_method text default 'WhatsApp / Store UPI',
-  payment_id text, -- Razorpay Transaction ID e.g. pay_N8xxxx
+  payment_id text, -- Cashfree / Online Transaction ID e.g. cf_pay_xxxx or pay_N8xxxx
   payment_status text default 'Pending', -- 'Paid', 'Pending', 'Failed'
+  cashfree_order_id text,
   status text default 'Order Placed', -- 'Order Placed', 'Assembled & Tested', 'Out for Delivery', 'Delivered', 'Cancelled'
   tracking_step integer default 1, -- 1: Placed, 2: Tested, 3: Out for Delivery, 4: Delivered
   estimated_delivery text default 'Within 24 Hours in Coimbatore',
@@ -128,6 +129,7 @@ create table if not exists public.orders (
 -- Idempotent column additions in case table already exists
 alter table public.orders add column if not exists payment_id text;
 alter table public.orders add column if not exists payment_status text default 'Pending';
+alter table public.orders add column if not exists cashfree_order_id text;
 
 alter table public.orders enable row level security;
 

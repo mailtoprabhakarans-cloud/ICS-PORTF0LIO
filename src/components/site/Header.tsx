@@ -32,7 +32,7 @@ import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth-context";
 import { createOrderInBackend } from "@/lib/supabase-api";
 import type { DbOrder } from "@/lib/supabase";
-import { openRazorpayCheckout } from "@/lib/razorpay";
+import { openCashfreeCheckout } from "@/lib/cashfree";
 import { sanitizeInput, sanitizePhone } from "@/lib/security";
 import { toast } from "sonner";
 import AdminPanelModal from "../admin/AdminPanelModal";
@@ -69,6 +69,7 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isTrackingOpen, setIsTrackingOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
@@ -76,6 +77,7 @@ export default function Header() {
   const [searchResults, setSearchResults] = useState<Product[]>([]);
 
   useEffect(() => {
+    setMounted(true);
     const onScroll = () => setScrolled(window.scrollY > 12);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -341,7 +343,7 @@ export default function Header() {
               className="hidden sm:flex relative size-9 sm:size-10 items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-red-500 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
             >
               <Heart className="size-4 sm:size-4.5 stroke-[1.8]" />
-              {wishlist.length > 0 && (
+              {mounted && wishlist.length > 0 && (
                 <span className="absolute top-1 right-1 flex size-4 items-center justify-center rounded-full bg-red-600 text-[9px] font-black text-white ring-2 ring-white dark:ring-slate-900">
                   {wishlist.length}
                 </span>
@@ -358,7 +360,7 @@ export default function Header() {
               className="hidden md:flex relative size-9 sm:size-10 items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-brand-blue transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
             >
               <GitCompareArrows className="size-4.5 stroke-[1.8]" />
-              {compareList.length > 0 && (
+              {mounted && compareList.length > 0 && (
                 <span className="absolute top-1 right-1 flex size-4 items-center justify-center rounded-full bg-brand-blue text-[9px] font-black text-white ring-2 ring-white dark:ring-slate-900">
                   {compareList.length}
                 </span>
@@ -375,7 +377,7 @@ export default function Header() {
               className="relative flex size-8 sm:size-10 items-center justify-center rounded-full text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
             >
               <ShoppingCart className="size-4 sm:size-4.5 stroke-[1.8]" />
-              {cartCount > 0 && (
+              {mounted && cartCount > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 sm:h-4.5 sm:min-w-4.5 items-center justify-center rounded-full bg-red-600 px-1 text-[9px] sm:text-[10px] font-black text-white ring-2 ring-white dark:ring-slate-900 shadow-xs animate-pulse-subtle">
                   {cartCount}
                 </span>
@@ -666,7 +668,7 @@ export default function Header() {
                     className="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-red-500 transition-colors"
                   >
                     <Heart className="size-4 text-red-500" />
-                    <span>Wishlist ({wishlist.length})</span>
+                    <span>Wishlist ({mounted ? wishlist.length : 0})</span>
                   </button>
 
                   <button
@@ -808,8 +810,16 @@ function IconBtn({
 }
 
 function CartDrawer() {
-  const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQty, cartTotal, clearCart, openQuote } =
-    useApp();
+  const {
+    cart,
+    isCartOpen,
+    setIsCartOpen,
+    removeFromCart,
+    updateQty,
+    cartTotal,
+    clearCart,
+    openQuote,
+  } = useApp();
   const { user, profile, openAccountDrawer } = useAuth();
 
   const [checkoutStep, setCheckoutStep] = useState<"cart" | "details" | "confirmed">("cart");
@@ -817,7 +827,9 @@ function CartDrawer() {
   const [custPhone, setCustPhone] = useState("");
   const [custEmail, setCustEmail] = useState("");
   const [custAddress, setCustAddress] = useState("");
-  const [paymentMode, setPaymentMode] = useState<"razorpay" | "cod" | "pickup" | "neft">("razorpay");
+  const [paymentMode, setPaymentMode] = useState<"cashfree" | "cod" | "pickup" | "neft">(
+    "cashfree",
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdOrder, setCreatedOrder] = useState<DbOrder | null>(null);
 
@@ -846,19 +858,19 @@ function CartDrawer() {
       return;
     }
 
-    // Online Razorpay Payment Flow
-    if (paymentMode === "razorpay") {
+    // Online Cashfree Payment Flow
+    if (paymentMode === "cashfree") {
       setIsSubmitting(true);
       const preOrderId = `ICS-ORD-${Math.floor(1000 + Math.random() * 9000)}`;
 
-      await openRazorpayCheckout({
+      await openCashfreeCheckout({
         amount: grandTotal,
         orderId: preOrderId,
         customerName: custName.trim(),
         email: custEmail.trim() || user?.email,
         phone: custPhone.trim(),
         description: `Payment for ${cart.length} item(s) (incl. 18% GST)`,
-        onSuccess: async (razorpayRes) => {
+        onSuccess: async (cashfreeRes) => {
           const res = await createOrderInBackend({
             userId: user?.id,
             customerName: sanitizeInput(custName),
@@ -869,10 +881,10 @@ function CartDrawer() {
             subtotal: cartTotal,
             gstAmount: gstEstimate,
             grandTotal: grandTotal,
-            paymentMethod: "Razorpay Online (UPI/Cards)",
-            paymentId: razorpayRes.razorpay_payment_id,
+            paymentMethod: "Cashfree Online (UPI/Cards)",
+            paymentId: cashfreeRes.payment_id,
             paymentStatus: "Paid",
-            razorpayOrderId: razorpayRes.razorpay_order_id,
+            cashfreeOrderId: String(cashfreeRes.cf_order_id || cashfreeRes.order_id),
           });
           setIsSubmitting(false);
 
@@ -881,7 +893,7 @@ function CartDrawer() {
             setCheckoutStep("confirmed");
             clearCart();
             toast.success("Payment Received & Order Placed!", {
-              description: `Payment ID: ${razorpayRes.razorpay_payment_id}`,
+              description: `Cashfree Payment ID: ${cashfreeRes.payment_id}`,
             });
           } else {
             toast.error("Failed to record order", { description: res.error });
@@ -1022,7 +1034,9 @@ function CartDrawer() {
                               >
                                 -
                               </button>
-                              <span className="px-2 text-xs font-bold text-slate-900">{item.qty}</span>
+                              <span className="px-2 text-xs font-bold text-slate-900">
+                                {item.qty}
+                              </span>
                               <button
                                 onClick={() => updateQty(item.id, 1)}
                                 className="px-2.5 py-0.5 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
@@ -1084,7 +1098,10 @@ function CartDrawer() {
                           .join(
                             "\n",
                           )}\n\nSubtotal: ₹${cartTotal.toLocaleString("en-IN")}\nEstimated GST (18%): ₹${gstEstimate.toLocaleString("en-IN")}\nGrand Total: ₹${grandTotal.toLocaleString("en-IN")}\n\nPlease share the formal quotation PDF / availability.`;
-                        window.open(`https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(whatsappMessage)}`, "_blank");
+                        window.open(
+                          `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(whatsappMessage)}`,
+                          "_blank",
+                        );
                       }}
                       className="flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 py-2.5 text-xs font-bold transition-all shadow-xs"
                     >
@@ -1097,12 +1114,19 @@ function CartDrawer() {
 
             {/* Step 2: Customer Details Form (In-App Order) */}
             {checkoutStep === "details" && (
-              <form onSubmit={handleConfirmInAppOrder} className="flex-1 flex flex-col justify-between p-5 overflow-y-auto">
+              <form
+                onSubmit={handleConfirmInAppOrder}
+                className="flex-1 flex flex-col justify-between p-5 overflow-y-auto"
+              >
                 <div className="space-y-4">
                   <div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-3.5">
                     <span className="text-xs font-bold text-blue-800">Order Summary:</span>
                     <p className="text-xs text-slate-600 mt-0.5">
-                      {cart.length} item(s) · Grand Total: <span className="font-bold text-slate-900">₹{grandTotal.toLocaleString("en-IN")}</span> (incl. GST)
+                      {cart.length} item(s) · Grand Total:{" "}
+                      <span className="font-bold text-slate-900">
+                        ₹{grandTotal.toLocaleString("en-IN")}
+                      </span>{" "}
+                      (incl. GST)
                     </p>
                   </div>
 
@@ -1169,10 +1193,10 @@ function CartDrawer() {
                     </label>
 
                     <div className="space-y-2">
-                      {/* Option 1: Razorpay Online (UPI, Cards, NetBanking) */}
+                      {/* Option 1: Cashfree Online (UPI, Cards, NetBanking, Wallets) */}
                       <label
                         className={`flex items-start gap-3 p-3 rounded-2xl border cursor-pointer transition-all ${
-                          paymentMode === "razorpay"
+                          paymentMode === "cashfree"
                             ? "border-blue-600 bg-blue-50/70 shadow-xs ring-2 ring-blue-600/20"
                             : "border-slate-200 bg-white hover:border-slate-300"
                         }`}
@@ -1180,23 +1204,24 @@ function CartDrawer() {
                         <input
                           type="radio"
                           name="paymentMode"
-                          value="razorpay"
-                          checked={paymentMode === "razorpay"}
-                          onChange={() => setPaymentMode("razorpay")}
+                          value="cashfree"
+                          checked={paymentMode === "cashfree"}
+                          onChange={() => setPaymentMode("cashfree")}
                           className="mt-1 text-blue-600 focus:ring-blue-500"
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2">
                             <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                               <CreditCard className="size-3.5 text-blue-600" />
-                              Razorpay Online Gateway
+                              Cashfree Gateway & UPI QR Code
                             </span>
                             <span className="rounded-md bg-gradient-to-r from-blue-600 to-indigo-600 px-1.5 py-0.5 text-[9px] font-extrabold uppercase text-white shadow-xs">
                               Recommended
                             </span>
                           </div>
                           <p className="text-[11px] text-slate-600 mt-0.5">
-                            Instant UPI (GPay, PhonePe, Paytm), Credit / Debit Cards, NetBanking & Wallets
+                            Instant UPI (GPay, PhonePe, Paytm), Credit / Debit Cards, NetBanking &
+                            Wallets
                           </p>
                           <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                             <span className="text-[10px] font-semibold text-slate-700 bg-white px-1.5 py-0.5 rounded border border-slate-200">
@@ -1310,10 +1335,10 @@ function CartDrawer() {
                         <span className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                         Processing...
                       </span>
-                    ) : paymentMode === "razorpay" ? (
+                    ) : paymentMode === "cashfree" ? (
                       <>
                         <Lock className="size-4" />
-                        Pay ₹{grandTotal.toLocaleString("en-IN")} via Razorpay
+                        Pay ₹{grandTotal.toLocaleString("en-IN")} via Cashfree / UPI QR
                       </>
                     ) : (
                       <>
@@ -1340,9 +1365,12 @@ function CartDrawer() {
                 <div className="size-16 rounded-3xl bg-emerald-100 text-emerald-600 grid place-items-center">
                   <CheckCircle2 className="size-8" />
                 </div>
-                <h4 className="font-display text-2xl font-black text-slate-900">Order Placed Successfully!</h4>
+                <h4 className="font-display text-2xl font-black text-slate-900">
+                  Order Placed Successfully!
+                </h4>
                 <p className="text-xs text-slate-500 max-w-xs">
-                  Your order has been recorded into the live database. You can track progress in real-time.
+                  Your order has been recorded into the live database. You can track progress in
+                  real-time.
                 </p>
 
                 <div className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left text-xs space-y-2.5">
@@ -1354,15 +1382,21 @@ function CartDrawer() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500 font-bold uppercase">Customer:</span>
-                    <span className="font-semibold text-slate-900">{createdOrder.customer_name}</span>
+                    <span className="font-semibold text-slate-900">
+                      {createdOrder.customer_name}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500 font-bold uppercase">Total Amount:</span>
-                    <span className="font-bold text-red-600">₹{Number(createdOrder.grand_total).toLocaleString("en-IN")}</span>
+                    <span className="font-bold text-red-600">
+                      ₹{Number(createdOrder.grand_total).toLocaleString("en-IN")}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-slate-500 font-bold uppercase">Payment Mode:</span>
-                    <span className="font-semibold text-slate-800">{createdOrder.payment_method}</span>
+                    <span className="font-semibold text-slate-800">
+                      {createdOrder.payment_method}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-slate-500 font-bold uppercase">Payment Status:</span>
@@ -1378,7 +1412,9 @@ function CartDrawer() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500 font-bold uppercase">Estimated Delivery:</span>
-                    <span className="font-semibold text-emerald-700">{createdOrder.estimated_delivery}</span>
+                    <span className="font-semibold text-emerald-700">
+                      {createdOrder.estimated_delivery}
+                    </span>
                   </div>
                 </div>
 
@@ -1410,4 +1446,3 @@ function CartDrawer() {
     </AnimatePresence>
   );
 }
-

@@ -179,7 +179,7 @@ export default function OrderTrackingModal({
                       {foundOrder.payment_id ? (
                         <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-200 px-2 py-0.5 text-[10px] font-bold text-blue-700">
                           <CheckCircle2 className="size-3 text-blue-600" />
-                          Paid via Razorpay ({foundOrder.payment_id})
+                          Paid via {foundOrder.payment_method?.includes("Razorpay") ? "Razorpay" : "Cashfree"} ({foundOrder.payment_id})
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-bold text-amber-700">

@@ -217,7 +217,7 @@ export default function UserAccountDrawer() {
                               </span>
                               {order.payment_id ? (
                                 <span className="rounded-full bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:text-blue-400">
-                                  Paid (Razorpay)
+                                  Paid ({order.payment_method?.includes("Razorpay") ? "Razorpay" : "Cashfree"})
                                 </span>
                               ) : (
                                 <span className="rounded-full bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">

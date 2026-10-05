@@ -65,18 +65,18 @@ function applySecurityHeaders(response: Response): Response {
   // Force HTTPS on modern browsers
   newHeaders.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
 
-  // Robust Content Security Policy allowing required assets, Razorpay, Google OAuth, and Supabase
+  // Robust Content Security Policy allowing required assets, Cashfree, Razorpay, Google OAuth, and Supabase
   const cspDirectives = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://accounts.google.com https://apis.google.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.cashfree.com https://sdk.cashfree.com https://checkout.razorpay.com https://accounts.google.com https://apis.google.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: blob: https: http:",
     "font-src 'self' https://fonts.gstatic.com data:",
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.razorpay.com https://lumberjack.razorpay.com https://accounts.google.com https://images.unsplash.com",
-    "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://accounts.google.com",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.cashfree.com https://sandbox.cashfree.com https://api.cashfree.com https://sdk.cashfree.com https://payments.cashfree.com https://api.razorpay.com https://lumberjack.razorpay.com https://accounts.google.com https://images.unsplash.com",
+    "frame-src 'self' https://*.cashfree.com https://sandbox.cashfree.com https://api.cashfree.com https://sdk.cashfree.com https://payments.cashfree.com https://api.razorpay.com https://checkout.razorpay.com https://accounts.google.com",
     "object-src 'none'",
     "base-uri 'self'",
-    "form-action 'self'",
+    "form-action 'self' https://*.cashfree.com https://api.cashfree.com https://payments.cashfree.com https://sandbox.cashfree.com",
   ];
   newHeaders.set("Content-Security-Policy", cspDirectives.join("; "));
 
@@ -87,9 +87,47 @@ function applySecurityHeaders(response: Response): Response {
   });
 }
 
+import { createCashfreeOrderBackend, verifyCashfreeOrderBackend } from "./lib/cashfree-api";
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const url = new URL(request.url);
+
+      // Cashfree Order Creation Endpoint
+      if (url.pathname === "/api/cashfree/create-order" && request.method === "POST") {
+        try {
+          const body = await request.json();
+          const result = await createCashfreeOrderBackend(body);
+          return new Response(JSON.stringify(result), {
+            status: result.success ? 200 : 400,
+            headers: { "Content-Type": "application/json" },
+          });
+        } catch (e) {
+          return new Response(JSON.stringify({ success: false, error: String(e) }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+      }
+
+      // Cashfree Order Verification Endpoint
+      if (url.pathname === "/api/cashfree/verify-order" && request.method === "GET") {
+        try {
+          const orderId = url.searchParams.get("orderId") || "";
+          const result = await verifyCashfreeOrderBackend(orderId);
+          return new Response(JSON.stringify(result), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        } catch (e) {
+          return new Response(JSON.stringify({ success: false, error: String(e) }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+      }
+
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       const normalized = await normalizeCatastrophicSsrResponse(response);

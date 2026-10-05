@@ -418,6 +418,7 @@ export async function createOrderInBackend(order: {
   paymentMethod?: string | undefined;
   paymentId?: string | undefined;
   paymentStatus?: "Paid" | "Pending" | "Failed" | string | undefined;
+  cashfreeOrderId?: string | undefined;
   razorpayOrderId?: string | undefined;
 }): Promise<{ success: boolean; order?: import("./supabase").DbOrder; error?: string | undefined }> {
   const orderId = `ICS-ORD-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -433,9 +434,10 @@ export async function createOrderInBackend(order: {
     subtotal: order.subtotal,
     gst_amount: order.gstAmount,
     grand_total: order.grandTotal,
-    payment_method: order.paymentMethod || "Razorpay Online (UPI/Cards)",
+    payment_method: order.paymentMethod || "Cashfree Online (UPI/Cards)",
     payment_id: order.paymentId,
     payment_status: order.paymentStatus || (order.paymentId ? "Paid" : "Pending"),
+    cashfree_order_id: order.cashfreeOrderId,
     razorpay_order_id: order.razorpayOrderId,
     status: "Order Placed",
     tracking_step: 1,
@@ -464,9 +466,9 @@ export async function createOrderInBackend(order: {
       subtotal: newOrder.subtotal,
       gst_amount: newOrder.gst_amount,
       grand_total: newOrder.grand_total,
-      payment_method: newOrder.payment_method,
-      payment_id: newOrder.payment_id || null,
-      payment_status: newOrder.payment_status || "Pending",
+      payment_method: newOrder.payment_id
+        ? `${newOrder.payment_method || "Cashfree"} (${newOrder.payment_id})`
+        : newOrder.payment_method || "Cashfree Online (UPI/Cards)",
       status: newOrder.status,
       tracking_step: newOrder.tracking_step,
       estimated_delivery: newOrder.estimated_delivery,
