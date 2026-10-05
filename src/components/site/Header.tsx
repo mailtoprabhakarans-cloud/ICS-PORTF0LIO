@@ -33,7 +33,7 @@ import { useAuth } from "@/lib/auth-context";
 import { createOrderInBackend } from "@/lib/supabase-api";
 import type { DbOrder } from "@/lib/supabase";
 import { openCashfreeCheckout } from "@/lib/cashfree";
-import { sanitizeInput, sanitizePhone } from "@/lib/security";
+import { sanitizeInput, sanitizePhone, sanitizeEmail, verifyHoneypot } from "@/lib/security";
 import { toast } from "sonner";
 import AdminPanelModal from "../admin/AdminPanelModal";
 import OrderTrackingModal from "./OrderTrackingModal";
@@ -832,6 +832,7 @@ function CartDrawer() {
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdOrder, setCreatedOrder] = useState<DbOrder | null>(null);
+  const [botTrap, setBotTrap] = useState("");
 
   // Sync with user profile on open
   useEffect(() => {
@@ -853,6 +854,10 @@ function CartDrawer() {
 
   const handleConfirmInAppOrder = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!verifyHoneypot(botTrap)) {
+      toast.error("Automated bot submission blocked.");
+      return;
+    }
     if (!custName.trim() || !custPhone.trim()) {
       toast.error("Please fill in your Name and Phone number");
       return;
@@ -866,16 +871,16 @@ function CartDrawer() {
       await openCashfreeCheckout({
         amount: grandTotal,
         orderId: preOrderId,
-        customerName: custName.trim(),
-        email: custEmail.trim() || user?.email,
-        phone: custPhone.trim(),
+        customerName: sanitizeInput(custName),
+        email: custEmail.trim() ? sanitizeEmail(custEmail) : user?.email,
+        phone: sanitizePhone(custPhone),
         description: `Payment for ${cart.length} item(s) (incl. 18% GST)`,
         onSuccess: async (cashfreeRes) => {
           const res = await createOrderInBackend({
             userId: user?.id,
             customerName: sanitizeInput(custName),
             phone: sanitizePhone(custPhone),
-            email: custEmail.trim().toLowerCase() || user?.email,
+            email: custEmail.trim() ? sanitizeEmail(custEmail) : user?.email,
             deliveryAddress: sanitizeInput(custAddress) || "Podanur, Coimbatore (Online Order)",
             items: cart,
             subtotal: cartTotal,
@@ -923,7 +928,7 @@ function CartDrawer() {
       userId: user?.id,
       customerName: sanitizeInput(custName),
       phone: sanitizePhone(custPhone),
-      email: custEmail.trim().toLowerCase() || user?.email,
+      email: custEmail.trim() ? sanitizeEmail(custEmail) : user?.email,
       deliveryAddress:
         sanitizeInput(custAddress) ||
         (paymentMode === "pickup"
@@ -1118,6 +1123,18 @@ function CartDrawer() {
                 onSubmit={handleConfirmInAppOrder}
                 className="flex-1 flex flex-col justify-between p-5 overflow-y-auto"
               >
+                {/* Bot Protection Honeypot - hidden from real humans */}
+                <div style={{ display: "none" }} aria-hidden="true">
+                  <input
+                    type="text"
+                    name="organization_tax_exempt_field"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={botTrap}
+                    onChange={(e) => setBotTrap(e.target.value)}
+                  />
+                </div>
+
                 <div className="space-y-4">
                   <div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-3.5">
                     <span className="text-xs font-bold text-blue-800">Order Summary:</span>

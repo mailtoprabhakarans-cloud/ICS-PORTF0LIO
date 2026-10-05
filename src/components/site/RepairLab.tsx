@@ -53,6 +53,7 @@ const LAB_FEATURES = [
 
 import { lookupRepairTicket } from "@/lib/supabase-api";
 import { useAuth } from "@/lib/auth-context";
+import { sanitizeInput } from "@/lib/security";
 
 export default function RepairLab() {
   const { openQuote } = useApp();
@@ -69,7 +70,7 @@ export default function RepairLab() {
 
   const handleLookup = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    const query = ticketInput.trim().toUpperCase();
+    const query = sanitizeInput(ticketInput).trim().toUpperCase().slice(0, 30);
     if (!query) return;
 
     setLoadingTicket(true);

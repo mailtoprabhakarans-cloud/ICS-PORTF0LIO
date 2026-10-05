@@ -21,6 +21,7 @@ import { CONTACT, SERVICE_TYPES, waLink } from "@/lib/site-data";
 import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth-context";
 import { submitQuoteToBackend } from "@/lib/supabase-api";
+import { sanitizeInput, sanitizePhone, sanitizeEmail } from "@/lib/security";
 import IcsLogo from "./IcsLogo";
 import { toast } from "sonner";
 
@@ -60,17 +61,22 @@ export default function QuoteModal() {
   if (!isQuoteOpen) return null;
 
   const handleWhatsAppSend = async () => {
+    const cleanName = sanitizeInput(name) || "Customer";
+    const cleanPhone = sanitizePhone(phone) || "Not specified";
+    const cleanEmail = email ? sanitizeEmail(email) : undefined;
+    const cleanNotes = sanitizeInput(notes);
+
     // Save to Supabase backend
     await submitQuoteToBackend({
       userId: user?.id,
-      name: name || "Customer",
-      phone: phone || "Not specified",
-      email: email || undefined,
+      name: cleanName,
+      phone: cleanPhone,
+      email: cleanEmail,
       service,
-      notes,
+      notes: cleanNotes,
     });
 
-    const msg = `Hi ICS Computer Store! Here is my quote request:\n\n• Name: ${name || "Customer"}\n• Phone: ${phone || "Not specified"}\n• Service Required: ${service}\n• Notes / Spec: ${notes || "Standard Inquiry"}\n\nPlease share availability & quotation.`;
+    const msg = `Hi ICS Computer Store! Here is my quote request:\n\n• Name: ${cleanName}\n• Phone: ${cleanPhone}\n• Service Required: ${service}\n• Notes / Spec: ${cleanNotes || "Standard Inquiry"}\n\nPlease share availability & quotation.`;
     window.open(waLink(msg), "_blank");
     setSent(true);
     toast.success("Quote sent & saved to your account!");
@@ -80,13 +86,18 @@ export default function QuoteModal() {
     e.preventDefault();
     setSubmitting(true);
 
+    const cleanName = sanitizeInput(name);
+    const cleanPhone = sanitizePhone(phone);
+    const cleanEmail = email ? sanitizeEmail(email) : undefined;
+    const cleanNotes = sanitizeInput(notes);
+
     const res = await submitQuoteToBackend({
       userId: user?.id,
-      name,
-      phone,
-      email: email || undefined,
+      name: cleanName,
+      phone: cleanPhone,
+      email: cleanEmail,
       service,
-      notes,
+      notes: cleanNotes,
     });
 
     setSubmitting(false);

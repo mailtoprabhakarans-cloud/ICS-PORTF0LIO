@@ -1,6 +1,7 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import type { Plugin } from "vite";
 import { createCashfreeOrderBackend, verifyCashfreeOrderBackend } from "./src/lib/cashfree-api";
+import { validateOrderIntegrity } from "./src/lib/security";
 
 function cashfreeDevPlugin(): Plugin {
   return {
@@ -15,14 +16,24 @@ function cashfreeDevPlugin(): Plugin {
           req.on("end", async () => {
             try {
               const body = JSON.parse(bodyStr || "{}");
+              const integrity = validateOrderIntegrity({
+                amount: Number(body.amount),
+              });
+              if (!integrity.isValid) {
+                res.setHeader("Content-Type", "application/json");
+                res.statusCode = 400;
+                res.end(JSON.stringify({ success: false, error: integrity.error }));
+                return;
+              }
+
               const result = await createCashfreeOrderBackend(body);
               res.setHeader("Content-Type", "application/json");
               res.statusCode = result.success ? 200 : 400;
               res.end(JSON.stringify(result));
-            } catch (err) {
+            } catch {
               res.setHeader("Content-Type", "application/json");
-              res.statusCode = 500;
-              res.end(JSON.stringify({ success: false, error: String(err) }));
+              res.statusCode = 400;
+              res.end(JSON.stringify({ success: false, error: "Invalid payment request payload." }));
             }
           });
           return;
@@ -31,15 +42,15 @@ function cashfreeDevPlugin(): Plugin {
         if (req.url?.startsWith("/api/cashfree/verify-order") && req.method === "GET") {
           try {
             const url = new URL(req.url, "http://localhost");
-            const orderId = url.searchParams.get("orderId") || "";
+            const orderId = (url.searchParams.get("orderId") || "").slice(0, 50);
             const result = await verifyCashfreeOrderBackend(orderId);
             res.setHeader("Content-Type", "application/json");
             res.statusCode = 200;
             res.end(JSON.stringify(result));
-          } catch (err) {
+          } catch {
             res.setHeader("Content-Type", "application/json");
             res.statusCode = 500;
-            res.end(JSON.stringify({ success: false, error: String(err) }));
+            res.end(JSON.stringify({ success: false, error: "Failed to verify transaction status." }));
           }
           return;
         }

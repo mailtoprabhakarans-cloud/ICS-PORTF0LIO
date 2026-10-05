@@ -11,6 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { lookupOrderById, lookupRepairTicket } from "@/lib/supabase-api";
+import { sanitizeInput } from "@/lib/security";
 import type { DbOrder, DbRepairTicket } from "@/lib/supabase";
 
 export default function OrderTrackingModal({
@@ -30,7 +31,7 @@ export default function OrderTrackingModal({
 
   const handleLookup = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    const q = orderQuery.trim().toUpperCase();
+    const q = sanitizeInput(orderQuery).trim().toUpperCase().slice(0, 40);
     if (!q) return;
 
     setLoading(true);

@@ -44,6 +44,22 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+function checkRateLimit(key: string, limit: number, windowMs: number): boolean {
+  const now = Date.now();
+  const record = rateLimitMap.get(key);
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(key, { count: 1, resetTime: now + windowMs });
+    return true;
+  }
+  if (record.count >= limit) {
+    return false;
+  }
+  record.count += 1;
+  return true;
+}
+
 function applySecurityHeaders(response: Response): Response {
   const newHeaders = new Headers(response.headers);
 
@@ -60,7 +76,16 @@ function applySecurityHeaders(response: Response): Response {
   newHeaders.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
   // Restrict sensitive device APIs
-  newHeaders.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  newHeaders.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=(), payment=(self 'https://*.cashfree.com')",
+  );
+
+  // Prevent window.opener cross-origin tampering while allowing payment modals
+  newHeaders.set("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+
+  // Restrict resource loading across origins
+  newHeaders.set("X-Permitted-Cross-Domain-Policies", "none");
 
   // Force HTTPS on modern browsers
   newHeaders.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
@@ -88,43 +113,93 @@ function applySecurityHeaders(response: Response): Response {
 }
 
 import { createCashfreeOrderBackend, verifyCashfreeOrderBackend } from "./lib/cashfree-api";
+import { validateOrderIntegrity } from "./lib/security";
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       const url = new URL(request.url);
+      const clientIp =
+        request.headers.get("cf-connecting-ip") ||
+        request.headers.get("x-real-ip") ||
+        request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+        "anonymous";
 
-      // Cashfree Order Creation Endpoint
+      // 1. Rate-Limited Cashfree Order Creation Endpoint (Anti-Spam / Anti-DDoS)
       if (url.pathname === "/api/cashfree/create-order" && request.method === "POST") {
+        if (!checkRateLimit(`create_${clientIp}`, 10, 60 * 1000)) {
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: "Rate limit exceeded. Please wait 1 minute before trying again.",
+            }),
+            {
+              status: 429,
+              headers: { "Content-Type": "application/json", "Retry-After": "60" },
+            },
+          );
+        }
+
         try {
           const body = await request.json();
+
+          // Anti-tampering validation
+          const integrity = validateOrderIntegrity({
+            amount: Number(body.amount),
+          });
+          if (!integrity.isValid) {
+            return new Response(JSON.stringify({ success: false, error: integrity.error }), {
+              status: 400,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+
           const result = await createCashfreeOrderBackend(body);
           return new Response(JSON.stringify(result), {
             status: result.success ? 200 : 400,
             headers: { "Content-Type": "application/json" },
           });
         } catch (e) {
-          return new Response(JSON.stringify({ success: false, error: String(e) }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" },
-          });
+          return new Response(
+            JSON.stringify({ success: false, error: "Invalid payment request payload." }),
+            {
+              status: 400,
+              headers: { "Content-Type": "application/json" },
+            },
+          );
         }
       }
 
-      // Cashfree Order Verification Endpoint
+      // 2. Rate-Limited Cashfree Order Verification Endpoint
       if (url.pathname === "/api/cashfree/verify-order" && request.method === "GET") {
+        if (!checkRateLimit(`verify_${clientIp}`, 90, 60 * 1000)) {
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: "Verification rate limit reached. Retrying automatically...",
+            }),
+            {
+              status: 429,
+              headers: { "Content-Type": "application/json", "Retry-After": "5" },
+            },
+          );
+        }
+
         try {
-          const orderId = url.searchParams.get("orderId") || "";
+          const orderId = (url.searchParams.get("orderId") || "").slice(0, 50);
           const result = await verifyCashfreeOrderBackend(orderId);
           return new Response(JSON.stringify(result), {
             status: 200,
             headers: { "Content-Type": "application/json" },
           });
-        } catch (e) {
-          return new Response(JSON.stringify({ success: false, error: String(e) }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" },
-          });
+        } catch {
+          return new Response(
+            JSON.stringify({ success: false, error: "Failed to verify transaction status." }),
+            {
+              status: 500,
+              headers: { "Content-Type": "application/json" },
+            },
+          );
         }
       }
 
@@ -133,7 +208,7 @@ export default {
       const normalized = await normalizeCatastrophicSsrResponse(response);
       return applySecurityHeaders(normalized);
     } catch (error) {
-      console.error(error);
+      console.error("Server fetch exception:", error);
       const errorResp = new Response(renderErrorPage(), {
         status: 500,
         headers: { "content-type": "text/html; charset=utf-8" },

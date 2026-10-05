@@ -193,7 +193,7 @@ function AdminDashboard() {
       setPinError(true);
       if (attemptRes.isLocked) {
         setLockoutSeconds(attemptRes.remainingSeconds);
-        toast.error(`3 incorrect attempts! Admin access locked for 60 seconds.`);
+        toast.error(`Too many incorrect attempts! Admin access locked for ${attemptRes.remainingSeconds}s.`);
       } else {
         toast.error("Incorrect Admin Security PIN");
       }
