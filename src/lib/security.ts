@@ -158,7 +158,8 @@ export function recordFailedAdminPinAttempt(): { isLocked: boolean; remainingSec
   if (currentAttempts >= MAX_INITIAL_ATTEMPTS) {
     // Progressive durations: 60s, 300s (5min), 900s (15min)
     const durations = [60, 300, 900];
-    const durationSec = durations[Math.min(lockoutLevel - 1, durations.length - 1)];
+    const index = Math.max(0, Math.min(lockoutLevel - 1, durations.length - 1));
+    const durationSec = durations[index] ?? 60;
     const lockoutUntil = Date.now() + durationSec * 1000;
 
     sessionStorage.setItem(STORAGE_KEY_LOCKOUT_UNTIL, lockoutUntil.toString());

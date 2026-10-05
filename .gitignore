@@ -14,15 +14,27 @@ dist-ssr
 .vinxi
 .tanstack/**
 .nitro
-*.local
+# Environment files & Secrets
 .env
-.env.production
-.env.*.local
+.env*
+.env.*
 !.env.example
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+*.keystore
+id_rsa*
+id_ed25519*
+*credential*.json
+*secret*.json
+serviceAccountKey*.json
 
 # Wrangler / Cloudflare
 .wrangler/
-.dev.vars
+.dev.vars*
 
 # Editor directories and files
 .vscode/*

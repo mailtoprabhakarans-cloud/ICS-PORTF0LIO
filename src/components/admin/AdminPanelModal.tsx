@@ -872,6 +872,7 @@ export default function AdminPanelModal({
                         <option value="networking">Networking</option>
                         <option value="monitors">Monitors</option>
                         <option value="power">Cooling & Power</option>
+                        <option value="accessories">Accessories</option>
                       </select>
                     </div>
                   </div>

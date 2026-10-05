@@ -226,7 +226,8 @@ export type Product = {
     | "networking"
     | "cctv"
     | "monitors"
-    | "power";
+    | "power"
+    | "accessories";
   image?: string;
   images?: string[];
   specs: string[];

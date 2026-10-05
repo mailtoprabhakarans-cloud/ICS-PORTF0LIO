@@ -35,6 +35,8 @@ const CATEGORIES = [
   { id: "cctv", label: "CCTV Cameras" },
   { id: "networking", label: "Networking" },
   { id: "monitors", label: "Monitors" },
+  { id: "power", label: "Power & Cabinets" },
+  { id: "accessories", label: "Accessories" },
 ];
 
 export default function Products() {
