@@ -244,40 +244,40 @@ export type Product = {
 
 export const PRODUCTS: Product[] = [
   {
-    id: "ics-live-test-paisa",
-    name: "Micro Live Test Item (₹0.01 / 1 Paisa)",
+    id: "ics-live-test-10paisa",
+    name: "Live Payment Test Item (₹0.10 / 10 Paisa)",
     brand: "ICS Hardware Lab",
     category: "accessories",
     image:
       "https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=600&auto=format&fit=crop&q=80",
     specs: [
-      "₹0.01 Micro Test Item",
+      "₹0.10 Live Test Item",
       "Cashfree Gateway Live Mode",
       "Instant Auto Confirmation",
-      "Gateway Min Rule Applies",
+      "Banking Min ₹1 at PG",
     ],
     fullSpecs: {
       "Item Type": "Micro Payment Gateway Testing Unit",
       "Gateway Provider": "Cashfree Payments (Production)",
-      "Test Amount": "₹0.01",
+      "Test Amount": "₹0.10",
       "Supported Modes": "UPI QR, Google Pay, PhonePe, Paytm, Cards, NetBanking",
       "Confirmation Time": "Instant Auto-Confirmation",
       Warranty: "Instant Verification Receipt",
     },
-    price: 0.01,
-    mrp: 1,
+    price: 0.1,
+    mrp: 5,
     tab: "hot",
     rating: 5,
-    reviewCount: 99,
+    reviewCount: 9999,
     inStock: true,
     warranty: "Instant Live Checkout Verification",
     highlights: [
       "Specially added for micro testing with Cashfree & UPI",
-      "Note: Indian Payment Gateway (NPCI/RBI) regulations require min ₹1.00 at checkout",
+      "Note: Indian Payment Gateway (NPCI/RBI) regulations enforce minimum ₹1.00 at gateway checkout",
       "Instant order placement and automated receipt generation",
     ],
     description:
-      "Special micro verification product priced at ₹0.01 (1 paisa). Note: Indian banking / Cashfree regulations enforce a minimum ₹1.00 gateway charge.",
+      "Special micro verification product priced at ₹0.10 (10 paise). Note: Indian banking and Cashfree regulations enforce a minimum ₹1.00 gateway charge.",
   },
   {
     id: "ics-live-test-1rs",
@@ -304,7 +304,7 @@ export const PRODUCTS: Product[] = [
     mrp: 10,
     tab: "hot",
     rating: 5,
-    reviewCount: 99,
+    reviewCount: 9998,
     inStock: true,
     warranty: "Instant Live Checkout Verification",
     highlights: [
