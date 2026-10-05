@@ -154,7 +154,8 @@ export default {
             });
           }
 
-          const result = await createCashfreeOrderBackend(body);
+          const cfEnv = (env as Record<string, unknown>) || undefined;
+          const result = await createCashfreeOrderBackend(body, cfEnv);
           return new Response(JSON.stringify(result), {
             status: result.success ? 200 : 400,
             headers: { "Content-Type": "application/json" },
@@ -188,7 +189,8 @@ export default {
         try {
           const orderId = (url.searchParams.get("orderId") || "").slice(0, 50);
           const utr = (url.searchParams.get("utr") || "").slice(0, 50);
-          const result = await verifyCashfreeOrderBackend(orderId, utr);
+          const cfEnv = (env as Record<string, unknown>) || undefined;
+          const result = await verifyCashfreeOrderBackend(orderId, utr, cfEnv);
           return new Response(JSON.stringify(result), {
             status: 200,
             headers: { "Content-Type": "application/json" },

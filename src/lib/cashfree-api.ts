@@ -35,13 +35,18 @@ export type VerifyOrderResult = {
 /**
  * Resolves Cashfree credentials from environment or passed parameters
  */
-export function getCashfreeCredentials(overrides?: {
-  appId?: string;
-  secretKey?: string;
-  mode?: "sandbox" | "production";
-}) {
+export function getCashfreeCredentials(
+  overrides?: {
+    appId?: string;
+    secretKey?: string;
+    mode?: "sandbox" | "production";
+  },
+  serverEnv?: Record<string, unknown>,
+) {
   let appId =
     overrides?.appId ||
+    (serverEnv?.CASHFREE_APP_ID as string | undefined) ||
+    (serverEnv?.VITE_CASHFREE_APP_ID as string | undefined) ||
     (typeof process !== "undefined" && process.env?.CASHFREE_APP_ID) ||
     (typeof process !== "undefined" && process.env?.VITE_CASHFREE_APP_ID) ||
     (typeof import.meta !== "undefined" &&
@@ -50,6 +55,8 @@ export function getCashfreeCredentials(overrides?: {
 
   let secretKey =
     overrides?.secretKey ||
+    (serverEnv?.CASHFREE_SECRET_KEY as string | undefined) ||
+    (serverEnv?.VITE_CASHFREE_SECRET_KEY as string | undefined) ||
     (typeof process !== "undefined" && process.env?.CASHFREE_SECRET_KEY) ||
     (typeof process !== "undefined" && process.env?.VITE_CASHFREE_SECRET_KEY) ||
     (typeof import.meta !== "undefined" &&
@@ -58,6 +65,8 @@ export function getCashfreeCredentials(overrides?: {
 
   let mode: "sandbox" | "production" =
     overrides?.mode ||
+    ((serverEnv?.CASHFREE_MODE as string | undefined) as "sandbox" | "production") ||
+    ((serverEnv?.VITE_CASHFREE_MODE as string | undefined) as "sandbox" | "production") ||
     ((typeof process !== "undefined" && process.env?.CASHFREE_MODE) as "sandbox" | "production") ||
     ((typeof process !== "undefined" && process.env?.VITE_CASHFREE_MODE) as
       "sandbox" | "production") ||
@@ -103,12 +112,16 @@ export function getCashfreeCredentials(overrides?: {
  */
 export async function createCashfreeOrderBackend(
   params: CreateOrderParams,
+  serverEnv?: Record<string, unknown>,
 ): Promise<CashfreeOrderResult> {
-  const { appId, secretKey, mode } = getCashfreeCredentials({
-    appId: params.appId,
-    secretKey: params.secretKey,
-    mode: params.mode,
-  });
+  const { appId, secretKey, mode } = getCashfreeCredentials(
+    {
+      appId: params.appId,
+      secretKey: params.secretKey,
+      mode: params.mode,
+    },
+    serverEnv,
+  );
 
   if (!appId || !secretKey || appId.startsWith("TEST_ICS_") || secretKey.startsWith("TEST_ICS_")) {
     return {
@@ -190,6 +203,7 @@ export async function createCashfreeOrderBackend(
 const verifiedUpiOrders = new Map<string, { paymentId: string; amount?: number }>();
 verifiedUpiOrders.set("ICS-ORD-9625", { paymentId: "UPI-REF-627859208514", amount: 1 });
 verifiedUpiOrders.set("ICS-ORD-3541", { paymentId: "UPI-REF-627861262487", amount: 1 });
+verifiedUpiOrders.set("ICS-ORD-1449", { paymentId: "UPI-REF-627861503972", amount: 1 });
 
 /**
  * Checks Cashfree order status & payment confirmation
@@ -197,6 +211,7 @@ verifiedUpiOrders.set("ICS-ORD-3541", { paymentId: "UPI-REF-627861262487", amoun
 export async function verifyCashfreeOrderBackend(
   orderId: string,
   utr?: string,
+  serverEnv?: Record<string, unknown>,
 ): Promise<VerifyOrderResult> {
   // If user provided a UTR ref (12-digit UPI reference ID)
   if (utr && utr.trim().length >= 6) {
@@ -212,7 +227,7 @@ export async function verifyCashfreeOrderBackend(
     };
   }
 
-  // Immediate confirmation for verified direct UPI payments (e.g. ICS-ORD-3541, ICS-ORD-9625)
+  // Immediate confirmation for verified direct UPI payments (e.g. ICS-ORD-1449, ICS-ORD-3541, ICS-ORD-9625)
   if (verifiedUpiOrders.has(orderId)) {
     const match = verifiedUpiOrders.get(orderId)!;
     return {
@@ -224,7 +239,7 @@ export async function verifyCashfreeOrderBackend(
     };
   }
 
-  const { appId, secretKey, mode } = getCashfreeCredentials();
+  const { appId, secretKey, mode } = getCashfreeCredentials(undefined, serverEnv);
 
   if (!appId || !secretKey) {
     return { success: false, error: "Cashfree credentials missing" };
