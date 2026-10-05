@@ -877,6 +877,7 @@ function CartDrawer() {
         description: `Payment for ${cart.length} item(s) (incl. 18% GST)`,
         onSuccess: async (cashfreeRes) => {
           const res = await createOrderInBackend({
+            orderId: preOrderId,
             userId: user?.id,
             customerName: sanitizeInput(custName),
             phone: sanitizePhone(custPhone),

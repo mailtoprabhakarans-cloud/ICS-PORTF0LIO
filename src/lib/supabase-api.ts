@@ -406,6 +406,7 @@ export async function fetchUserPcBuilds(userId: string) {
 
 // 4. ORDERS & CART HISTORY API (User specific with live tracking)
 export async function createOrderInBackend(order: {
+  orderId?: string | undefined;
   userId?: string | undefined;
   customerName: string;
   phone: string;
@@ -421,7 +422,7 @@ export async function createOrderInBackend(order: {
   cashfreeOrderId?: string | undefined;
   razorpayOrderId?: string | undefined;
 }): Promise<{ success: boolean; order?: import("./supabase").DbOrder; error?: string | undefined }> {
-  const orderId = `ICS-ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+  const orderId = order.orderId || `ICS-ORD-${Math.floor(1000 + Math.random() * 9000)}`;
 
   const newOrder: import("./supabase").DbOrder = {
     id: orderId,

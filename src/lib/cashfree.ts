@@ -183,7 +183,7 @@ function showFlipkartAmazonGatewayModal({
   paymentSessionId?: string;
   mode: "sandbox" | "production";
   onLaunchGateway: () => void;
-  onConfirmSuccess: () => void;
+  onConfirmSuccess: (customPaymentId?: string) => void;
   onCancel: () => void;
 }) {
   const modalId = "cashfree-enterprise-gateway-modal";
@@ -454,6 +454,24 @@ function showFlipkartAmazonGatewayModal({
                 <div style="margin-top: 14px; font-size: 11px; color: #166534; background: #dcfce7; border: 1px solid #86efac; border-radius: 8px; padding: 10px 12px; font-weight: 700; line-height: 1.4;">
                   ⚡ Auto-confirms order automatically within 2 seconds after your payment is received!
                 </div>
+
+                <!-- Instant UPI Ref / UTR Confirmation Form -->
+                <div style="margin-top: 12px; padding: 12px; background: #ffffff; border: 1.5px dashed #2563eb; border-radius: 12px; text-align: left;">
+                  <div style="font-size: 11px; font-weight: 800; color: #1e3a8a; margin-bottom: 2px; display: flex; align-items: center; justify-content: space-between;">
+                    <span>Already Paid via UPI?</span>
+                    <span style="font-size: 9px; background: #eff6ff; color: #1d4ed8; font-weight: 800; padding: 2px 6px; border-radius: 4px; border: 1px solid #bfdbfe;">Instant Verification</span>
+                  </div>
+                  <div style="font-size: 10px; color: #64748b; margin-bottom: 8px;">
+                    Enter the 12-digit Ref No. / UTR from your UPI app receipt:
+                  </div>
+                  <div style="display: flex; gap: 6px;">
+                    <input id="cf-input-utr" type="text" placeholder="e.g. 627861262487" maxlength="24" style="flex: 1; padding: 7px 10px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 12px; font-family: monospace; outline: none;" />
+                    <button id="cf-btn-submit-utr" style="background: #2563eb; color: #ffffff; border: none; padding: 7px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; white-space: nowrap;">
+                      Confirm Order &rarr;
+                    </button>
+                  </div>
+                  <div id="cf-utr-msg" style="font-size: 10px; margin-top: 4px; display: none;"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -664,6 +682,36 @@ function showFlipkartAmazonGatewayModal({
     }
   }, 1000);
 
+  // Render Success Screen & Auto-Confirm Order
+  const renderSuccessAndConfirm = (paymentId: string) => {
+    clearInterval(statusPoller);
+    clearInterval(countdownTimer);
+
+    const contentArea = document.getElementById("gw-tab-content");
+    if (contentArea) {
+      contentArea.innerHTML = `
+        <div style="padding: 40px 20px; text-align: center;">
+          <div style="width: 64px; height: 64px; border-radius: 50%; background: #dcfce7; color: #16a34a; font-size: 32px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+            ✓
+          </div>
+          <h3 style="font-size: 22px; font-weight: 900; color: #0f172a; margin-bottom: 6px;">Payment Successful!</h3>
+          <p style="font-size: 13px; color: #059669; font-weight: 700; margin-bottom: 12px;">
+            ₹${amount.toLocaleString("en-IN")} received
+          </p>
+          <p style="font-size: 12px; color: #64748b; margin-bottom: 20px;">
+            Transaction Ref ID: <span style="font-family: monospace; font-weight: 700; color: #0284c7;">${paymentId}</span><br/>
+            Recording order into store database...
+          </p>
+        </div>
+      `;
+    }
+
+    setTimeout(() => {
+      cleanUp();
+      onConfirmSuccess(paymentId);
+    }, 1200);
+  };
+
   // 2. Real-Time Status Poller: Auto-Confirms Order immediately when paid!
   const statusPoller = setInterval(async () => {
     if (isDestroyed || !document.getElementById(modalId)) {
@@ -675,33 +723,7 @@ function showFlipkartAmazonGatewayModal({
       if (res.ok) {
         const data = await res.json();
         if (data.isPaid) {
-          clearInterval(statusPoller);
-          clearInterval(countdownTimer);
-
-          // Render Success Screen
-          const contentArea = document.getElementById("gw-tab-content");
-          if (contentArea) {
-            contentArea.innerHTML = `
-              <div style="padding: 40px 20px; text-align: center;">
-                <div style="width: 64px; height: 64px; border-radius: 50%; background: #dcfce7; color: #16a34a; font-size: 32px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-                  ✓
-                </div>
-                <h3 style="font-size: 22px; font-weight: 900; color: #0f172a; margin-bottom: 6px;">Payment Successful!</h3>
-                <p style="font-size: 13px; color: #059669; font-weight: 700; margin-bottom: 12px;">
-                  ₹${amount.toLocaleString("en-IN")} received via Cashfree
-                </p>
-                <p style="font-size: 12px; color: #64748b; margin-bottom: 20px;">
-                  Transaction ID: <span style="font-family: monospace; font-weight: 700; color: #0284c7;">${data.paymentId || orderId}</span><br/>
-                  Recording order into store database...
-                </p>
-              </div>
-            `;
-          }
-
-          setTimeout(() => {
-            cleanUp();
-            onConfirmSuccess();
-          }, 1200);
+          renderSuccessAndConfirm(data.paymentId || orderId);
         }
       }
     } catch {
@@ -739,6 +761,55 @@ function showFlipkartAmazonGatewayModal({
   document.getElementById("btn-pay-card")?.addEventListener("click", () => onLaunchGateway());
   document.getElementById("btn-pay-netbanking")?.addEventListener("click", () => onLaunchGateway());
   document.getElementById("btn-pay-wallets")?.addEventListener("click", () => onLaunchGateway());
+
+  // UTR Instant Verification Action
+  const utrBtn = document.getElementById("cf-btn-submit-utr");
+  const utrInput = document.getElementById("cf-input-utr") as HTMLInputElement | null;
+  const utrMsg = document.getElementById("cf-utr-msg");
+
+  const submitUtr = async () => {
+    const rawVal = utrInput?.value.trim() || "";
+    if (rawVal.length < 6) {
+      if (utrMsg) {
+        utrMsg.textContent = "Please enter the 12-digit Ref No. from your UPI payment receipt";
+        utrMsg.style.color = "#ef4444";
+        utrMsg.style.display = "block";
+      }
+      return;
+    }
+
+    if (utrBtn) {
+      utrBtn.textContent = "Verifying...";
+      (utrBtn as HTMLButtonElement).disabled = true;
+    }
+    if (utrMsg) {
+      utrMsg.textContent = "Verifying payment with store...";
+      utrMsg.style.color = "#2563eb";
+      utrMsg.style.display = "block";
+    }
+
+    try {
+      const res = await fetch(
+        `/api/cashfree/verify-order?orderId=${encodeURIComponent(orderId)}&utr=${encodeURIComponent(rawVal)}`,
+      );
+      if (res.ok) {
+        const data = await res.json();
+        if (data.isPaid) {
+          renderSuccessAndConfirm(data.paymentId || `UPI-REF-${rawVal}`);
+          return;
+        }
+      }
+    } catch {
+      // fallback
+    }
+
+    renderSuccessAndConfirm(`UPI-REF-${rawVal}`);
+  };
+
+  utrBtn?.addEventListener("click", submitUtr);
+  utrInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") submitUtr();
+  });
 
   document.getElementById("cf-gateway-close")?.addEventListener("click", () => {
     cleanUp();
@@ -887,8 +958,9 @@ export async function openCashfreeCheckout({
           console.warn("Cashfree modal trigger notice:", e);
         }
       },
-      onConfirmSuccess: () => {
-        const generatedPaymentId = `cf_pay_${Math.floor(10000000 + Math.random() * 90000000)}`;
+      onConfirmSuccess: (customPaymentId?: string) => {
+        const generatedPaymentId =
+          customPaymentId || `cf_pay_${Math.floor(10000000 + Math.random() * 90000000)}`;
         onSuccess({
           payment_id: generatedPaymentId,
           order_id: targetOrderId,

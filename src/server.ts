@@ -187,7 +187,8 @@ export default {
 
         try {
           const orderId = (url.searchParams.get("orderId") || "").slice(0, 50);
-          const result = await verifyCashfreeOrderBackend(orderId);
+          const utr = (url.searchParams.get("utr") || "").slice(0, 50);
+          const result = await verifyCashfreeOrderBackend(orderId, utr);
           return new Response(JSON.stringify(result), {
             status: 200,
             headers: { "Content-Type": "application/json" },

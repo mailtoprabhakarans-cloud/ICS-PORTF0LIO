@@ -43,7 +43,8 @@ function cashfreeDevPlugin(): Plugin {
           try {
             const url = new URL(req.url, "http://localhost");
             const orderId = (url.searchParams.get("orderId") || "").slice(0, 50);
-            const result = await verifyCashfreeOrderBackend(orderId);
+            const utr = (url.searchParams.get("utr") || "").slice(0, 50);
+            const result = await verifyCashfreeOrderBackend(orderId, utr);
             res.setHeader("Content-Type", "application/json");
             res.statusCode = 200;
             res.end(JSON.stringify(result));
