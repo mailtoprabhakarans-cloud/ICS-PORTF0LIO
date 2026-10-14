@@ -28,6 +28,7 @@ import {
   type StoreBranch,
   waLink,
 } from "@/lib/site-data";
+import { BrandLogo, PARTNER_BRANDS } from "./BrandLogo";
 
 function GoogleIcon({ className = "size-4" }: { className?: string }) {
   return (
@@ -484,14 +485,22 @@ export default function ReviewsAndStore() {
             Authorized Partner &amp; Reseller Brands
           </p>
           <div className="relative mt-6 overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_10%,#000_90%,transparent)]">
-            <div className="marquee-track flex w-max gap-4 hover:[animation-play-state:paused]">
-              {[...BRANDS, ...BRANDS].map((b, i) => (
-                <span
-                  key={`${b}-${i}`}
-                  className="grid h-14 w-36 shrink-0 place-items-center rounded-2xl border border-border/40 glass-card font-display text-sm font-bold text-ink/40 transition-all duration-300 hover:border-brand-blue/40 hover:text-brand-blue hover:shadow-sm shadow-sm"
+            <div className="marquee-track flex w-max gap-4 hover:[animation-play-state:paused] py-3">
+              {[...PARTNER_BRANDS, ...PARTNER_BRANDS].map((b, i) => (
+                <div
+                  key={`${b.name}-${i}`}
+                  className="group flex h-[76px] w-44 sm:w-48 shrink-0 flex-col items-center justify-center rounded-2xl border border-border/60 bg-card/95 px-5 py-2.5 shadow-xs transition-all duration-300 hover:border-brand-blue/50 hover:bg-card hover:shadow-md hover:-translate-y-0.5"
                 >
-                  {b}
-                </span>
+                  <div className="flex h-8 w-full items-center justify-center">
+                    <BrandLogo
+                      brand={b.name}
+                      className="h-7 w-auto max-w-[130px] object-contain transition-transform duration-300 group-hover:scale-105"
+                    />
+                  </div>
+                  <span className="text-[10px] font-semibold text-muted-foreground/75 mt-1 truncate max-w-full text-center">
+                    {b.category}
+                  </span>
+                </div>
               ))}
             </div>
           </div>
