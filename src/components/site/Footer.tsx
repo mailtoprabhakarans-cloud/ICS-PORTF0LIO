@@ -10,18 +10,19 @@ import {
   MessageCircle,
   Phone,
   Sparkles,
+  Store,
   Youtube,
 } from "lucide-react";
 import { CONTACT, waLink } from "@/lib/site-data";
 import IcsLogo from "./IcsLogo";
 
 const QUICK = [
-  { label: "Store Components", href: "#products" },
-  { label: "Custom PC Configurator", href: "#builder" },
-  { label: "Networking & CCTV", href: "#services" },
-  { label: "Cost Estimator", href: "#estimator" },
-  { label: "Chip-Level Lab", href: "#repair-lab" },
-  { label: "Gandhipuram Store", href: "#store-info" },
+  { label: "Store Components", href: "/#products" },
+  { label: "Custom PC Configurator", href: "/#builder" },
+  { label: "Networking & CCTV", href: "/#services" },
+  { label: "Cost Estimator", href: "/#estimator" },
+  { label: "Chip-Level Lab", href: "/#repair-lab" },
+  { label: "About Us & Verified Branches", href: "/about" },
 ];
 
 const CATS = [
@@ -154,18 +155,25 @@ export default function Footer() {
           <h4 className="font-display text-sm font-bold tracking-wider text-ink uppercase">
             Visit Our Store
           </h4>
-          <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
+          <ul className="mt-4 space-y-3.5 text-xs sm:text-sm text-muted-foreground">
             <li className="flex gap-2.5">
               <MapPin className="mt-0.5 size-4.5 shrink-0 text-brand-red" />
               <div>
-                <span>{CONTACT.address}</span>
+                <p className="font-semibold text-ink">Podanur HQ (Coimbatore):</p>
+                <span className="text-xs">{CONTACT.address}</span>
+              </div>
+            </li>
+
+            <li className="flex gap-2.5">
+              <Store className="mt-0.5 size-4.5 shrink-0 text-brand-blue" />
+              <div>
+                <p className="font-semibold text-ink">Ooty Branch (Nilgiris):</p>
+                <span className="text-xs">Shop No: 1, ATC Complex, ATC Town Bus Stand, Ooty – 643001</span>
                 <a
-                  href={CONTACT.mapUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block mt-1 font-bold text-brand-blue hover:underline"
+                  href="/about#branches"
+                  className="block mt-1 font-bold text-brand-blue hover:underline text-xs"
                 >
-                  Get Directions →
+                  View Both Branch Maps &amp; Details →
                 </a>
               </div>
             </li>

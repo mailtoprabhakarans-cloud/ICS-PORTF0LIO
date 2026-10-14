@@ -39,12 +39,13 @@ import AdminPanelModal from "../admin/AdminPanelModal";
 import OrderTrackingModal from "./OrderTrackingModal";
 
 const NAV_LINKS = [
-  { label: "Store", href: "#products" },
-  { label: "PC Configurator", href: "#builder" },
-  { label: "Networking & CCTV", href: "#services" },
-  { label: "Solution Estimator", href: "#estimator" },
-  { label: "Chip-Level Lab", href: "#repair-lab" },
-  { label: "Reviews & Store", href: "#store-info" },
+  { label: "Store", href: "/#products" },
+  { label: "PC Configurator", href: "/#builder" },
+  { label: "Networking & CCTV", href: "/#services" },
+  { label: "Solution Estimator", href: "/#estimator" },
+  { label: "Chip-Level Lab", href: "/#repair-lab" },
+  { label: "Reviews & Branches", href: "/#store-info" },
+  { label: "About Us", href: "/about" },
 ];
 
 export default function Header() {
@@ -146,13 +147,11 @@ export default function Header() {
             </a>
 
             <a
-              href={CONTACT.mapUrl}
-              target="_blank"
-              rel="noreferrer"
+              href="/about#branches"
               className="hidden items-center gap-2 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-300 lg:inline-flex hover:bg-emerald-500/30 transition-colors"
             >
               <span className="size-2 animate-pulse rounded-full bg-emerald-400" />
-              Podanur, Coimbatore
+              Podanur, Coimbatore &amp; Ooty
             </a>
             <span className="flex items-center gap-1 sm:gap-1.5 rounded-full bg-gradient-brand px-2.5 sm:px-3.5 py-0.5 sm:py-1 text-[10px] sm:text-xs font-bold tracking-wide text-white shadow-lift animate-pulse-subtle">
               <Sparkles className="size-3 sm:size-3.5" /> SINCE 2007
