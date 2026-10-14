@@ -25,6 +25,14 @@ const QUICK = [
   { label: "About Us & Verified Branches", href: "/about" },
 ];
 
+const POLICIES = [
+  { label: "Shipping Policy", href: "/policies?tab=shipping" },
+  { label: "Return and Refund Policy", href: "/policies?tab=refund" },
+  { label: "Cancellation Policy", href: "/policies?tab=cancellation" },
+  { label: "Terms and Conditions", href: "/policies?tab=terms" },
+  { label: "Privacy Policy", href: "/policies?tab=privacy" },
+];
+
 const CATS = [
   "Processors (AMD & Intel)",
   "Graphics Cards (RTX 50/40)",
@@ -50,12 +58,13 @@ export default function Footer() {
       {/* Ambient gradient mesh */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-mesh opacity-30" />
 
-      <div className="relative mx-auto grid max-w-[1800px] gap-10 px-4 sm:px-6 lg:px-12 2xl:px-16 py-14 md:grid-cols-2 lg:grid-cols-4 2xl:gap-14">
+      <div className="relative mx-auto grid max-w-[1800px] gap-8 px-4 sm:px-6 lg:px-12 2xl:px-16 py-14 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 2xl:gap-12">
         {/* Brand & About */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
+          className="sm:col-span-2 md:col-span-1 lg:col-span-1"
         >
           <div className="flex items-center gap-3">
             <IcsLogo className="size-12 shrink-0 drop-shadow" />
@@ -117,6 +126,29 @@ export default function Footer() {
                   className="link-underline text-sm text-muted-foreground transition-colors hover:text-brand-red font-medium"
                 >
                   {q.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+
+        {/* Policy Details (In between Quick Navigation and Hardware Categories) */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5, delay: 0.15 }}
+        >
+          <h4 className="font-display text-sm font-bold tracking-wider text-ink uppercase">
+            Policy Details
+          </h4>
+          <ul className="mt-4 space-y-2.5">
+            {POLICIES.map((p) => (
+              <li key={p.label}>
+                <a
+                  href={p.href}
+                  className="link-underline text-sm text-muted-foreground transition-colors hover:text-brand-blue font-medium"
+                >
+                  {p.label}
                 </a>
               </li>
             ))}
