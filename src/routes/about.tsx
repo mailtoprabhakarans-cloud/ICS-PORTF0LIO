@@ -620,15 +620,15 @@ function AboutPage() {
                     {[...PARTNER_BRANDS, ...PARTNER_BRANDS].map((b, i) => (
                       <div
                         key={`${b.name}-${i}`}
-                        className="group flex h-[76px] w-44 sm:w-48 shrink-0 flex-col items-center justify-center rounded-2xl border border-border/60 bg-card/95 px-5 py-2.5 shadow-xs transition-all duration-300 hover:border-brand-blue/50 hover:bg-card hover:shadow-md hover:-translate-y-0.5"
+                        className="group flex h-[82px] w-44 sm:w-48 shrink-0 flex-col items-center justify-center rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900 px-4 py-2.5 shadow-xs transition-all duration-300 hover:border-brand-blue/50 hover:shadow-md hover:-translate-y-0.5"
                       >
-                        <div className="flex h-8 w-full items-center justify-center">
+                        <div className="flex h-9 w-full items-center justify-center">
                           <BrandLogo
                             brand={b.name}
-                            className="h-7 w-auto max-w-[130px] object-contain transition-transform duration-300 group-hover:scale-105"
+                            className="max-h-7 max-w-[125px] w-auto h-auto object-contain transition-transform duration-300 group-hover:scale-105"
                           />
                         </div>
-                        <span className="text-[10px] font-semibold text-muted-foreground/75 mt-1 truncate max-w-full text-center">
+                        <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-1 truncate max-w-full text-center">
                           {b.category}
                         </span>
                       </div>
