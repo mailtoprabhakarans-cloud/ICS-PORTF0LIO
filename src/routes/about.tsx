@@ -42,6 +42,7 @@ import AuthModal from "@/components/auth/AuthModal";
 import UserAccountDrawer from "@/components/auth/UserAccountDrawer";
 import { Toaster } from "sonner";
 import StructuredData from "@/components/seo/StructuredData";
+import { StoreMapEmbed } from "@/components/site/StoreMapEmbed";
 import { AppProvider } from "@/lib/store";
 import { AuthProvider } from "@/lib/auth-context";
 import {
@@ -466,31 +467,7 @@ function AboutPage() {
 
                     {/* Live Embedded Map */}
                     <div className="flex flex-col justify-between gap-4 lg:col-span-6">
-                      <div className="relative w-full h-[320px] sm:h-[380px] rounded-2xl overflow-hidden border border-border/60 shadow-sm bg-slate-900/10">
-                        <iframe
-                          key={activeBranch.id}
-                          title={`${activeBranch.name} Location Map`}
-                          src={activeBranch.mapEmbedUrl}
-                          width="100%"
-                          height="100%"
-                          style={{ border: 0 }}
-                          allowFullScreen={true}
-                          loading="lazy"
-                          referrerPolicy="no-referrer-when-downgrade"
-                          className="w-full h-full grayscale-[10%] contrast-[105%] hover:grayscale-0 transition-all duration-500"
-                        />
-                        <div className="absolute top-3 left-3 z-10">
-                          <a
-                            href={activeBranch.mapUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="flex items-center gap-1.5 rounded-full bg-white/95 dark:bg-slate-900/95 text-ink px-3 py-1.5 text-xs font-bold shadow-md backdrop-blur hover:scale-105 transition-transform"
-                          >
-                            <MapPin className="size-3.5 text-red-600" />
-                            <span>{activeBranch.city}</span>
-                          </a>
-                        </div>
-                      </div>
+                      <StoreMapEmbed branch={activeBranch} heightClass="h-[320px] sm:h-[380px]" />
                     </div>
                   </div>
                 </div>

@@ -11,7 +11,9 @@ export const CONTACT = {
   landmark: "Near Koushikha Hospital, Saradha Mill Road, Podanur",
   mapUrl: "https://maps.app.goo.gl/bZ98isZoDcdCNU1y7",
   mapEmbedUrl:
-    "https://maps.google.com/maps?q=240/A2B,%20Sarada%20Mill%20Rd,%20near%20Koushikha%20Hospital,%20Podanur,%20Coimbatore,%20Tamil%20Nadu%20641023&t=&z=16&ie=UTF8&iwloc=&output=embed",
+    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3917.3820268597374!2d76.9766396!3d10.9590583!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba85b82aabe0421%3A0x349f8bad9c0d42ac!2sINFANT%20COMPUTER%20STORE!5e0!3m2!1sen!2sin!4v1718000000000!5m2!1sen!2sin",
+  osmEmbedUrl:
+    "https://www.openstreetmap.org/export/embed.html?bbox=76.9740%2C10.9540%2C76.9840%2C10.9640&layer=mapnik&marker=10.9590583%2C76.9792146",
   googleBusinessUrl: "https://maps.app.goo.gl/bZ98isZoDcdCNU1y7",
   googleReviewUrl: "https://maps.app.goo.gl/bZ98isZoDcdCNU1y7",
 };
@@ -32,6 +34,7 @@ export type StoreBranch = {
   hours: string;
   mapUrl: string;
   mapEmbedUrl: string;
+  osmEmbedUrl?: string;
   isHQ: boolean;
   storeCode?: string;
   verified: boolean;
@@ -54,7 +57,9 @@ export const BRANCHES: StoreBranch[] = [
     hours: "Mon – Sat · 9:30 AM – 8:00 PM (Sunday Closed)",
     mapUrl: "https://maps.app.goo.gl/bZ98isZoDcdCNU1y7",
     mapEmbedUrl:
-      "https://maps.google.com/maps?q=240/A2B,%20Sarada%20Mill%20Rd,%20near%20Koushikha%20Hospital,%20Podanur,%20Coimbatore,%20Tamil%20Nadu%20641023&t=&z=16&ie=UTF8&iwloc=&output=embed",
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3917.3820268597374!2d76.9766396!3d10.9590583!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba85b82aabe0421%3A0x349f8bad9c0d42ac!2sINFANT%20COMPUTER%20STORE!5e0!3m2!1sen!2sin!4v1718000000000!5m2!1sen!2sin",
+    osmEmbedUrl:
+      "https://www.openstreetmap.org/export/embed.html?bbox=76.9740%2C10.9540%2C76.9840%2C10.9640&layer=mapnik&marker=10.9590583%2C76.9792146",
     isHQ: true,
     verified: true,
   },
@@ -74,7 +79,9 @@ export const BRANCHES: StoreBranch[] = [
     hours: "Mon – Sat · 10:00 AM – 7:30 PM (Sunday Closed)",
     mapUrl: "https://maps.google.com/?q=ATC+Town+Bus+Stand+Ooty+Nilgiris+643001",
     mapEmbedUrl:
-      "https://maps.google.com/maps?q=ATC%20Complex,%20ATC%20Town%20Bus%20Stand,%20Ooty,%20Tamil%20Nadu%20643001&t=&z=16&ie=UTF8&iwloc=&output=embed",
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3910.742385150821!2d76.70062!3d11.4102!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba8bd84c0a5fcfb%3A0x4a7e937d7c66a42a!2sATC%20Complex%2C%20ATC%20Bus%20Stand%2C%20Ooty!5e0!3m2!1sen!2sin!4v1718000000000!5m2!1sen!2sin",
+    osmEmbedUrl:
+      "https://www.openstreetmap.org/export/embed.html?bbox=76.6950%2C11.4050%2C76.7060%2C11.4150&layer=mapnik&marker=11.4102%2C76.70062",
     isHQ: false,
     storeCode: "14028597543412147164",
     verified: true,
