@@ -1,27 +1,41 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import {
+  ArrowRight,
+  BadgeCheck,
+  Building2,
+  ChevronRight,
   Clock,
+  Cpu,
+  CreditCard,
+  ExternalLink,
   Facebook,
+  FileText,
   Instagram,
   Linkedin,
   Mail,
   MapPin,
   MessageCircle,
+  Navigation,
   Phone,
+  Receipt,
+  ShieldCheck,
   Sparkles,
   Store,
+  Truck,
+  Wrench,
   Youtube,
+  Zap,
 } from "lucide-react";
 import { CONTACT, waLink } from "@/lib/site-data";
 import IcsLogo from "./IcsLogo";
 
 const QUICK = [
-  { label: "Store Components", href: "/#products" },
-  { label: "Custom PC Configurator", href: "/#builder" },
+  { label: "Store Components", href: "/#products", badge: "In Stock" },
+  { label: "Custom PC Configurator", href: "/#builder", badge: "3D Rig" },
   { label: "Networking & CCTV", href: "/#services" },
   { label: "Cost Estimator", href: "/#estimator" },
-  { label: "Chip-Level Lab", href: "/#repair-lab" },
+  { label: "Chip-Level Lab", href: "/#repair-lab", badge: "BGA Lab" },
   { label: "About Us & Verified Branches", href: "/about" },
 ];
 
@@ -34,19 +48,19 @@ const POLICIES = [
 ];
 
 const CATS = [
-  "Processors (AMD & Intel)",
-  "Graphics Cards (RTX 50/40)",
-  "Motherboards & RAM",
-  "Gen4/Gen5 NVMe SSDs",
-  "Hikvision 4K CCTV",
-  "Cat6 Cabling & Racks",
+  { name: "Processors (AMD & Intel)", tag: "Ryzen 9000 & Core Ultra" },
+  { name: "Graphics Cards (RTX 50/40)", tag: "GeForce & Radeon" },
+  { name: "Motherboards & RAM", tag: "DDR5 / X870E / Z890" },
+  { name: "Gen4/Gen5 NVMe SSDs", tag: "High Speed NVMe" },
+  { name: "Hikvision 4K CCTV", tag: "ColorVu & IP Domes" },
+  { name: "Cat6 Cabling & Racks", tag: "Enterprise Setup" },
 ];
 
 const SOCIALS = [
-  { icon: Facebook, label: "Facebook" },
-  { icon: Instagram, label: "Instagram" },
-  { icon: Linkedin, label: "LinkedIn" },
-  { icon: Youtube, label: "YouTube" },
+  { icon: Facebook, label: "Facebook", href: "https://facebook.com" },
+  { icon: Instagram, label: "Instagram", href: "https://instagram.com" },
+  { icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com" },
+  { icon: Youtube, label: "YouTube", href: "https://youtube.com" },
 ];
 
 export default function Footer() {
@@ -54,12 +68,52 @@ export default function Footer() {
   const inView = useInView(footerRef, { once: true, margin: "-60px" });
 
   return (
-    <footer ref={footerRef} className="relative overflow-hidden border-t border-border/40 bg-surface">
-      {/* Ambient gradient mesh */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-mesh opacity-30" />
+    <footer ref={footerRef} className="relative overflow-hidden border-t border-border/50 bg-gradient-to-b from-surface via-surface/95 to-background text-ink">
+      {/* Ambient top glow line */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-blue/40 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-mesh opacity-25" />
 
-      <div className="relative mx-auto grid max-w-[1800px] gap-8 px-4 sm:px-6 lg:px-12 2xl:px-16 py-14 grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 2xl:gap-10">
-        {/* Brand & About (4 of 12 columns) */}
+      {/* Pre-Footer Action Banner */}
+      <div className="relative border-b border-border/40 bg-card/50 backdrop-blur-xs">
+        <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6 lg:px-12 2xl:px-16">
+          <div className="flex items-center gap-3">
+            <div className="grid size-10 place-items-center rounded-xl bg-brand-blue/10 text-brand-blue shrink-0">
+              <Zap className="size-5 text-brand-blue" />
+            </div>
+            <div>
+              <h4 className="font-display text-sm sm:text-base font-bold text-ink">
+                Need Custom PC Consultation or Enterprise Quotation?
+              </h4>
+              <p className="text-xs text-muted-foreground">
+                Talk directly with certified hardware engineers in Coimbatore &amp; Nilgiris.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2.5">
+            <a
+              href={CONTACT.phoneHref}
+              className="inline-flex items-center gap-2 rounded-xl border border-border/80 bg-background/90 hover:bg-surface px-4 py-2 text-xs font-bold text-ink shadow-xs transition-all hover:border-brand-blue hover:scale-[1.02]"
+            >
+              <Phone className="size-3.5 text-brand-red" />
+              <span>{CONTACT.phone}</span>
+            </a>
+            <a
+              href={waLink("Hi Infant Computer Store! I'd like a custom consultation.")}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-xs font-bold text-white shadow-xs transition-all hover:scale-[1.02]"
+            >
+              <MessageCircle className="size-3.5" />
+              <span>WhatsApp Us</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Main 5-Column Grid */}
+      <div className="relative mx-auto grid max-w-[1800px] gap-8 px-4 sm:px-6 lg:px-12 2xl:px-16 py-12 lg:py-14 grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 2xl:gap-12">
+        {/* Brand & Identity (4 cols) */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -72,7 +126,7 @@ export default function Footer() {
             </div>
             <div className="flex flex-col">
               <div className="flex items-baseline gap-1.5 leading-none">
-                <span className="font-display text-2xl font-black tracking-tight text-red-600 dark:text-red-500">
+                <span className="font-display text-2xl font-black tracking-tight text-brand-red">
                   ICS
                 </span>
                 <span className="font-display text-xl font-black tracking-tight text-ink uppercase">
@@ -85,21 +139,21 @@ export default function Footer() {
             </div>
           </a>
 
-          {/* Core Specialization Badges */}
+          {/* Core Specialization Pills */}
           <div className="flex flex-wrap gap-1.5 pt-0.5">
-            <span className="inline-flex items-center rounded-md bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-blue">
-              IT Hardware &amp; PCs
+            <span className="inline-flex items-center gap-1 rounded-md bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-blue">
+              <Cpu className="size-3" /> IT Hardware &amp; PCs
             </span>
-            <span className="inline-flex items-center rounded-md bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-              CCTV Surveillance
+            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+              <ShieldCheck className="size-3" /> CCTV Surveillance
             </span>
-            <span className="inline-flex items-center rounded-md bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">
-              Enterprise Networking
+            <span className="inline-flex items-center gap-1 rounded-md bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">
+              <Zap className="size-3" /> Enterprise Networking
             </span>
           </div>
 
           <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-sm">
-            Coimbatore &amp; Nilgiris' premier hub for custom gaming PC rigs, enterprise networking, 4K CCTV surveillance, and specialized in-house chip-level motherboard diagnostics.
+            Coimbatore and Nilgiris' premier hub for custom gaming PC rigs, enterprise networking, 4K CCTV surveillance, and specialized in-house chip-level motherboard diagnostics.
           </p>
 
           <div className="flex items-center gap-2 text-xs font-semibold text-ink">
@@ -111,11 +165,13 @@ export default function Footer() {
             {SOCIALS.map((item, i) => (
               <motion.a
                 key={i}
-                href="#top"
+                href={item.href}
+                target="_blank"
+                rel="noreferrer"
                 whileHover={{ y: -3, scale: 1.08 }}
                 whileTap={{ scale: 0.94 }}
                 aria-label={item.label}
-                className="grid size-9 place-items-center rounded-full border border-border/60 bg-card text-ink transition-colors hover:border-brand-blue hover:text-brand-blue shadow-xs"
+                className="grid size-9 place-items-center rounded-xl border border-border/60 bg-card text-ink transition-colors hover:border-brand-blue hover:text-brand-blue shadow-xs"
               >
                 <item.icon className="size-4" />
               </motion.a>
@@ -123,143 +179,194 @@ export default function Footer() {
           </div>
         </motion.div>
 
-        {/* Quick Links */}
+        {/* Quick Links (2 cols) */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.1 }}
           className="lg:col-span-2"
         >
-          <h4 className="font-display text-sm font-bold tracking-wider text-ink uppercase">
-            Quick Navigation
-          </h4>
+          <div className="flex items-center gap-2">
+            <div className="size-1.5 rounded-full bg-brand-blue" />
+            <h4 className="font-display text-xs sm:text-sm font-bold tracking-wider text-ink uppercase">
+              Quick Navigation
+            </h4>
+          </div>
           <ul className="mt-4 space-y-2.5">
             {QUICK.map((q) => (
               <li key={q.label}>
                 <a
                   href={q.href}
-                  className="link-underline text-sm text-muted-foreground transition-colors hover:text-brand-red font-medium"
+                  className="group flex items-center justify-between text-xs sm:text-sm text-muted-foreground transition-all hover:text-brand-blue font-medium"
                 >
-                  {q.label}
+                  <span className="group-hover:translate-x-1 transition-transform">
+                    {q.label}
+                  </span>
+                  {q.badge && (
+                    <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-brand-blue/10 text-brand-blue">
+                      {q.badge}
+                    </span>
+                  )}
                 </a>
               </li>
             ))}
           </ul>
         </motion.div>
 
-        {/* Policy Details (In between Quick Navigation and Hardware Categories) */}
+        {/* Policy Details (2 cols) */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.15 }}
           className="lg:col-span-2"
         >
-          <h4 className="font-display text-sm font-bold tracking-wider text-ink uppercase">
-            Policy Details
-          </h4>
+          <div className="flex items-center gap-2">
+            <div className="size-1.5 rounded-full bg-brand-red" />
+            <h4 className="font-display text-xs sm:text-sm font-bold tracking-wider text-ink uppercase">
+              Policy Details
+            </h4>
+          </div>
           <ul className="mt-4 space-y-2.5">
             {POLICIES.map((p) => (
               <li key={p.label}>
                 <a
                   href={p.href}
-                  className="link-underline text-sm text-muted-foreground transition-colors hover:text-brand-blue font-medium"
+                  className="group flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground transition-all hover:text-brand-red font-medium"
                 >
-                  {p.label}
+                  <ChevronRight className="size-3 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5 group-hover:text-brand-red" />
+                  <span>{p.label}</span>
                 </a>
               </li>
             ))}
           </ul>
         </motion.div>
 
-        {/* Categories */}
+        {/* Categories (2 cols) */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.2 }}
           className="lg:col-span-2"
         >
-          <h4 className="font-display text-sm font-bold tracking-wider text-ink uppercase">
-            Hardware Categories
-          </h4>
+          <div className="flex items-center gap-2">
+            <div className="size-1.5 rounded-full bg-emerald-500" />
+            <h4 className="font-display text-xs sm:text-sm font-bold tracking-wider text-ink uppercase">
+              Hardware Categories
+            </h4>
+          </div>
           <ul className="mt-4 space-y-2.5">
             {CATS.map((q) => (
-              <li key={q}>
+              <li key={q.name}>
                 <a
                   href="#products"
-                  className="link-underline text-sm text-muted-foreground transition-colors hover:text-brand-blue font-medium"
+                  className="group block text-xs sm:text-sm text-muted-foreground transition-all hover:text-brand-blue font-medium"
                 >
-                  {q}
+                  <span className="block group-hover:translate-x-1 transition-transform">
+                    {q.name}
+                  </span>
+                  <span className="block text-[10px] text-muted-foreground/60 font-normal">
+                    {q.tag}
+                  </span>
                 </a>
               </li>
             ))}
           </ul>
         </motion.div>
 
-        {/* Store Contact & Location */}
+        {/* Store Branches & Contact Hub (2 cols) */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="sm:col-span-2 lg:col-span-2"
+          className="sm:col-span-2 lg:col-span-2 space-y-3"
         >
-          <h4 className="font-display text-sm font-bold tracking-wider text-ink uppercase">
-            Visit Our Store
-          </h4>
-          <ul className="mt-4 space-y-3.5 text-xs sm:text-sm text-muted-foreground">
-            <li className="flex gap-2.5">
-              <MapPin className="mt-0.5 size-4.5 shrink-0 text-brand-red" />
-              <div>
-                <p className="font-semibold text-ink">Podanur HQ (Coimbatore):</p>
-                <span className="text-xs">{CONTACT.address}</span>
-              </div>
-            </li>
+          <div className="flex items-center gap-2">
+            <div className="size-1.5 rounded-full bg-purple-500" />
+            <h4 className="font-display text-xs sm:text-sm font-bold tracking-wider text-ink uppercase">
+              Visit Our Stores
+            </h4>
+          </div>
 
-            <li className="flex gap-2.5">
-              <Store className="mt-0.5 size-4.5 shrink-0 text-brand-blue" />
-              <div>
-                <p className="font-semibold text-ink">Ooty Branch (Nilgiris):</p>
-                <span className="text-xs">Shop No: 1, ATC Complex, ATC Town Bus Stand, Ooty – 643001</span>
-                <a
-                  href="/about#branches"
-                  className="block mt-1 font-bold text-brand-blue hover:underline text-xs"
-                >
-                  View Both Branch Maps &amp; Details →
-                </a>
-              </div>
-            </li>
+          {/* Podanur HQ Card */}
+          <div className="rounded-xl border border-border/60 bg-card/60 p-3 shadow-2xs hover:border-brand-red/40 transition-colors">
+            <div className="flex items-center justify-between gap-1">
+              <span className="flex items-center gap-1.5 font-bold text-ink text-xs">
+                <MapPin className="size-3.5 text-brand-red shrink-0" />
+                Podanur HQ
+              </span>
+              <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-brand-red/10 text-brand-red">
+                HQ Lab
+              </span>
+            </div>
+            <p className="mt-1 text-[11px] text-muted-foreground leading-tight">
+              240/A2B, Saradha Mill Rd, Podanur, Coimbatore – 641023
+            </p>
+            <a
+              href="https://maps.app.goo.gl/bZ98isZoDcdCNU1y7"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-1.5 inline-flex items-center gap-1 text-[10.5px] font-bold text-brand-blue hover:underline"
+            >
+              <span>Get Directions</span>
+              <ExternalLink className="size-2.5" />
+            </a>
+          </div>
 
-            <li className="flex gap-2.5 items-center">
-              <Phone className="size-4.5 shrink-0 text-brand-red" />
+          {/* Ooty Branch Card */}
+          <div className="rounded-xl border border-border/60 bg-card/60 p-3 shadow-2xs hover:border-brand-blue/40 transition-colors">
+            <div className="flex items-center justify-between gap-1">
+              <span className="flex items-center gap-1.5 font-bold text-ink text-xs">
+                <Store className="size-3.5 text-brand-blue shrink-0" />
+                Ooty Branch
+              </span>
+              <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-brand-blue/10 text-brand-blue">
+                Nilgiris
+              </span>
+            </div>
+            <p className="mt-1 text-[11px] text-muted-foreground leading-tight">
+              Shop 1, ATC Complex, ATC Town Bus Stand, Ooty – 643001
+            </p>
+            <a
+              href="/about#branches"
+              className="mt-1.5 inline-flex items-center gap-1 text-[10.5px] font-bold text-brand-blue hover:underline"
+            >
+              <span>View Branch Details</span>
+              <ArrowRight className="size-2.5" />
+            </a>
+          </div>
+
+          {/* Quick Contact Strip */}
+          <div className="pt-1 space-y-1.5 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Phone className="size-3.5 text-brand-red shrink-0" />
               <a href={CONTACT.phoneHref} className="hover:text-brand-blue font-semibold text-ink">
                 {CONTACT.phone}
               </a>
-            </li>
-
-            <li className="flex gap-2.5 items-center">
-              <Mail className="size-4.5 shrink-0 text-brand-red" />
-              <a href={`mailto:${CONTACT.email}`} className="hover:text-brand-blue font-medium">
-                {CONTACT.email}
-              </a>
-            </li>
-
-            <li className="flex gap-2.5 items-center">
-              <Clock className="size-4.5 shrink-0 text-brand-red" />
-              <span className="font-medium">{CONTACT.hours}</span>
-            </li>
-          </ul>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="size-3.5 text-brand-red shrink-0" />
+              <span className="text-[11px]">Mon – Sat · 9:30 AM – 8:00 PM</span>
+            </div>
+          </div>
         </motion.div>
       </div>
 
       {/* Bottom Bar */}
-      <div className="relative border-t border-border/40">
-        <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-3 px-4 sm:px-6 lg:px-12 2xl:px-16 py-6 text-xs sm:text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} ICS Computer Store. All Rights Reserved. (Since 2007)</p>
-          <div className="flex items-center gap-4">
+      <div className="relative border-t border-border/50 bg-background/50">
+        <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-4 px-4 sm:px-6 lg:px-12 2xl:px-16 py-6 text-xs text-muted-foreground">
+          <p>© {new Date().getFullYear()} Infant Computer Store (ICS). All Rights Reserved. (Since 2007)</p>
+          <div className="flex flex-wrap items-center gap-4 text-xs font-medium">
             <span className="flex items-center gap-1.5 font-bold text-ink">
-              <Sparkles className="size-3.5 text-brand-red" /> GST Registered Dealer
+              <BadgeCheck className="size-4 text-emerald-500" /> GST Registered Dealer
             </span>
-            <span>·</span>
-            <span className="font-medium">Podanur, Coimbatore – 641023</span>
+            <span className="hidden sm:inline">·</span>
+            <span className="flex items-center gap-1.5 font-bold text-ink">
+              <ShieldCheck className="size-4 text-brand-blue" /> Official Brand Warranty
+            </span>
+            <span className="hidden sm:inline">·</span>
+            <span className="flex items-center gap-1.5 text-muted-foreground">
+              <CreditCard className="size-4 text-indigo-500" /> UPI &amp; No-Cost EMI
+            </span>
           </div>
         </div>
       </div>
