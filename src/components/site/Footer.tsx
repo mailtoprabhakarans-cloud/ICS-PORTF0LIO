@@ -58,50 +58,64 @@ export default function Footer() {
       {/* Ambient gradient mesh */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-mesh opacity-30" />
 
-      <div className="relative mx-auto grid max-w-[1800px] gap-8 px-4 sm:px-6 lg:px-12 2xl:px-16 py-14 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 2xl:gap-12">
-        {/* Brand & About */}
+      <div className="relative mx-auto grid max-w-[1800px] gap-8 px-4 sm:px-6 lg:px-12 2xl:px-16 py-14 grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 2xl:gap-10">
+        {/* Brand & About (4 of 12 columns) */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
-          className="sm:col-span-2 md:col-span-1 lg:col-span-1"
+          className="sm:col-span-2 lg:col-span-4 space-y-4"
         >
-          <div className="flex items-center gap-3">
-            <IcsLogo className="size-12 shrink-0 drop-shadow" />
-            <div>
-              <div className="flex items-baseline gap-2">
-                <span className="font-display text-2xl font-black text-red-600 dark:text-red-500">ICS</span>
-                <span className="font-display text-2xl font-black tracking-tight text-ink uppercase">
+          <a href="#top" className="group inline-flex items-center gap-3.5">
+            <div className="relative flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white dark:bg-slate-900 border border-border/80 shadow-xs transition-transform duration-300 group-hover:scale-105">
+              <IcsLogo className="size-9 drop-shadow-xs" />
+            </div>
+            <div className="flex flex-col">
+              <div className="flex items-baseline gap-1.5 leading-none">
+                <span className="font-display text-2xl font-black tracking-tight text-red-600 dark:text-red-500">
+                  ICS
+                </span>
+                <span className="font-display text-xl font-black tracking-tight text-ink uppercase">
                   COMPUTER STORE
                 </span>
               </div>
-              <div className="flex flex-wrap sm:flex-nowrap items-center gap-1 sm:gap-1.5 text-[8.5px] sm:text-[10px] font-bold tracking-[0.05em] text-blue-950 dark:text-sky-400 uppercase mt-1">
-                <span>IT HARDWARE &amp; SOFTWARE</span>
-                <span className="text-slate-300 dark:text-slate-600 font-normal px-0.5">|</span>
-                <span>CCTV &amp; SECURITY</span>
-                <span className="text-slate-300 dark:text-slate-600 font-normal px-0.5">|</span>
-                <span>NETWORKING</span>
-              </div>
-              <span className="block text-xs font-semibold text-muted-foreground mt-1">
-                Est. 2007 · Gandhipuram &amp; Podanur, Coimbatore
-              </span>
+              <p className="mt-1 text-[11px] font-bold tracking-wider uppercase text-muted-foreground">
+                Infant Computer Store · Est. 2007
+              </p>
             </div>
+          </a>
+
+          {/* Core Specialization Badges */}
+          <div className="flex flex-wrap gap-1.5 pt-0.5">
+            <span className="inline-flex items-center rounded-md bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-blue">
+              IT Hardware &amp; PCs
+            </span>
+            <span className="inline-flex items-center rounded-md bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+              CCTV Surveillance
+            </span>
+            <span className="inline-flex items-center rounded-md bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">
+              Enterprise Networking
+            </span>
           </div>
 
-          <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-            Coimbatore's premier hub for custom gaming PC rigs, enterprise networking, 4K CCTV
-            surveillance, and specialized in-house chip-level motherboard diagnostics.
+          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-sm">
+            Coimbatore &amp; Nilgiris' premier hub for custom gaming PC rigs, enterprise networking, 4K CCTV surveillance, and specialized in-house chip-level motherboard diagnostics.
           </p>
 
-          <div className="mt-6 flex gap-2.5">
+          <div className="flex items-center gap-2 text-xs font-semibold text-ink">
+            <MapPin className="size-3.5 text-brand-red shrink-0" />
+            <span>Podanur HQ (Coimbatore) &amp; Ooty Branch</span>
+          </div>
+
+          <div className="flex gap-2.5 pt-1">
             {SOCIALS.map((item, i) => (
               <motion.a
                 key={i}
                 href="#top"
-                whileHover={{ y: -4, scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+                whileHover={{ y: -3, scale: 1.08 }}
+                whileTap={{ scale: 0.94 }}
                 aria-label={item.label}
-                className="grid size-10 place-items-center rounded-full border border-border/50 glass-card text-ink transition-all duration-300 hover:border-brand-blue/50 hover:text-brand-blue hover:shadow-[0_0_20px_oklch(0.62_0.2_245/0.2)]"
+                className="grid size-9 place-items-center rounded-full border border-border/60 bg-card text-ink transition-colors hover:border-brand-blue hover:text-brand-blue shadow-xs"
               >
                 <item.icon className="size-4" />
               </motion.a>
@@ -114,6 +128,7 @@ export default function Footer() {
           initial={{ opacity: 0, y: 24 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.1 }}
+          className="lg:col-span-2"
         >
           <h4 className="font-display text-sm font-bold tracking-wider text-ink uppercase">
             Quick Navigation
@@ -137,6 +152,7 @@ export default function Footer() {
           initial={{ opacity: 0, y: 24 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.15 }}
+          className="lg:col-span-2"
         >
           <h4 className="font-display text-sm font-bold tracking-wider text-ink uppercase">
             Policy Details
@@ -160,6 +176,7 @@ export default function Footer() {
           initial={{ opacity: 0, y: 24 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.2 }}
+          className="lg:col-span-2"
         >
           <h4 className="font-display text-sm font-bold tracking-wider text-ink uppercase">
             Hardware Categories
@@ -183,6 +200,7 @@ export default function Footer() {
           initial={{ opacity: 0, y: 24 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.3 }}
+          className="sm:col-span-2 lg:col-span-2"
         >
           <h4 className="font-display text-sm font-bold tracking-wider text-ink uppercase">
             Visit Our Store
