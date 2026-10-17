@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  AlertTriangle,
   Check,
   ChevronLeft,
   ChevronRight,
+  FileText,
   Heart,
   Maximize2,
   MessageCircle,
@@ -28,6 +30,7 @@ export default function QuickViewModal() {
     toggleWishlist,
     isInWishlist,
     setIsCartOpen,
+    openQuote,
   } = useApp();
 
   const [activeImgIdx, setActiveImgIdx] = useState(0);
@@ -198,16 +201,31 @@ export default function QuickViewModal() {
 
               <h2 className="mt-2 font-display text-xl sm:text-2xl font-bold text-ink leading-snug">{p.name}</h2>
 
-              <div className="mt-3 flex items-baseline gap-3">
+              <div className="mt-3 flex items-baseline gap-3 flex-wrap">
                 <span className="font-display text-3xl font-extrabold text-brand-red">
                   ₹{p.price.toLocaleString("en-IN")}
                 </span>
                 <span className="text-base text-muted-foreground line-through">
                   ₹{p.mrp.toLocaleString("en-IN")}
                 </span>
-                <span className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                  <span className="size-2 rounded-full bg-emerald-500 animate-pulse" /> In Stock
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 px-3 py-1 text-xs font-bold text-amber-700 dark:text-amber-300">
+                  <AlertTriangle className="size-3.5 text-amber-600 dark:text-amber-400" />
+                  Indicative Demo Price
                 </span>
+                <span className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                  <span className="size-2 rounded-full bg-emerald-500 animate-pulse" /> Available in Store
+                </span>
+              </div>
+
+              {/* Development Pricing Warning */}
+              <div className="mt-3 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-3.5 text-xs text-amber-950 dark:text-amber-200">
+                <p className="font-bold flex items-center gap-1.5 text-amber-900 dark:text-amber-300">
+                  <AlertTriangle className="size-3.5 text-amber-600 dark:text-amber-400" />
+                  Catalog Notice: Provisional Pricing
+                </p>
+                <p className="mt-1 text-[11px] leading-relaxed text-amber-800 dark:text-amber-300/90">
+                  Prices shown on this preview site are sample placeholder rates. To receive the <strong>authentic current live price &amp; official GST quotation</strong>, please request a quote below.
+                </p>
               </div>
 
               <p className="mt-4 text-sm sm:text-base leading-relaxed text-muted-foreground">{p.description}</p>
@@ -241,6 +259,20 @@ export default function QuickViewModal() {
 
               {/* Actions */}
               <div className="mt-6 flex flex-wrap gap-2.5">
+                {/* Primary CTA: Request Real Price Quote */}
+                <button
+                  onClick={() => {
+                    const name = p.name;
+                    setQuickViewProduct(null);
+                    openQuote(
+                      `Real Price Quotation Request for: ${name} (ID: ${p.id}). Please send me your authentic current price and GST invoice quote.`,
+                    );
+                  }}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 py-3 text-sm font-extrabold text-slate-950 shadow-lift transition-transform hover:scale-[1.02] active:scale-95"
+                >
+                  <FileText className="size-4 text-slate-950" /> Request Real Price Quote
+                </button>
+
                 <button
                   onClick={() => {
                     addToCart({
@@ -251,33 +283,18 @@ export default function QuickViewModal() {
                     });
                     setQuickViewProduct(null);
                   }}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-full bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 py-3 text-sm font-semibold text-white shadow-sm transition-transform hover:scale-[1.02] active:scale-95"
+                  className="flex items-center justify-center gap-2 rounded-full bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-transform hover:scale-[1.02] active:scale-95"
                 >
                   <ShoppingCart className="size-4" /> Add to Cart
                 </button>
 
-                <button
-                  onClick={() => {
-                    addToCart({
-                      id: p.id,
-                      name: p.name,
-                      price: p.price,
-                      brand: p.brand,
-                    });
-                    setQuickViewProduct(null);
-                    setIsCartOpen(true);
-                  }}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 py-3 text-sm font-bold text-white shadow-lift transition-transform hover:scale-[1.02] active:scale-95"
-                >
-                  <Sparkles className="size-4" /> Buy Now
-                </button>
-
                 <a
                   href={waLink(
-                    `Hi ICS Computer Store, I want to purchase ${p.name} (₹${p.price.toLocaleString("en-IN")}). Please confirm availability.`,
+                    `Hi ICS Computer Store, I am viewing "${p.name}" on your preview website (indicative ₹${p.price.toLocaleString("en-IN")}). Please send me your REAL / ACTUAL price quotation and store availability.`,
                   )}
                   target="_blank"
                   rel="noreferrer"
+                  title="WhatsApp for Real Price"
                   className="flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-emerald-600 transition-colors hover:bg-emerald-500 hover:text-white dark:text-emerald-400"
                 >
                   <MessageCircle className="size-4" />

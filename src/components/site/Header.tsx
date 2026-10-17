@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  AlertTriangle,
   Banknote,
   Building2,
   CheckCircle2,
@@ -37,6 +38,7 @@ import { sanitizeInput, sanitizePhone, sanitizeEmail, verifyHoneypot } from "@/l
 import { toast } from "sonner";
 import AdminPanelModal from "../admin/AdminPanelModal";
 import OrderTrackingModal from "./OrderTrackingModal";
+import DevelopmentBanner from "./DevelopmentBanner";
 
 const NAV_LINKS = [
   { label: "Store", href: "/#products" },
@@ -103,6 +105,9 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40">
+      {/* Global Under Development & Indicative Pricing Notice Banner */}
+      <DevelopmentBanner />
+
       {/* Top Utility Bar */}
       <div className="bg-slate-950 text-xs sm:text-sm text-slate-200 transition-colors py-1.5 sm:py-2 border-b border-white/10 overflow-hidden">
         <div className="mx-auto flex max-w-[1800px] items-center justify-between gap-2 px-3 sm:px-6 lg:px-12 2xl:px-16">
@@ -128,6 +133,12 @@ export default function Header() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Under Development / Indicative Pricing Alert Pill */}
+            <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 sm:px-3 py-0.5 sm:py-1 text-[11px] sm:text-xs font-bold text-amber-300">
+              <span className="size-2 animate-pulse rounded-full bg-amber-400" />
+              Dev Preview: Indicative Rates
+            </span>
+
             {/* Public Order Tracking Button */}
             <button
               onClick={() => setIsTrackingOpen(true)}
@@ -1005,6 +1016,21 @@ function CartDrawer() {
             {checkoutStep === "cart" && (
               <>
                 <div className="flex-1 space-y-3 overflow-y-auto p-5 bg-white">
+                  {/* Under Development & Indicative Price Alert */}
+                  <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-3.5 text-xs text-amber-950">
+                    <div className="flex items-start gap-2.5">
+                      <AlertTriangle className="size-4.5 text-amber-600 shrink-0 mt-0.5" />
+                      <div className="space-y-1">
+                        <p className="font-bold text-amber-900">
+                          Site Under Development — Prices are Indicative
+                        </p>
+                        <p className="text-[11px] leading-relaxed text-amber-800">
+                          Product prices in this cart are demo placeholder prices. When you submit your quotation request, our team will verify live inventory and provide you with the <strong>authentic real prices</strong> and official GST invoice before any payment.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   {cart.length === 0 ? (
                     <div className="py-24 text-center">
                       <ShoppingCart className="mx-auto size-12 text-slate-300" />
@@ -1029,7 +1055,10 @@ function CartDrawer() {
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-xs font-bold text-slate-900">{item.name}</p>
                           <p className="mt-0.5 text-xs font-extrabold text-red-600">
-                            ₹{item.price.toLocaleString("en-IN")}
+                            ₹{item.price.toLocaleString("en-IN")}{" "}
+                            <span className="text-[10px] font-semibold text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded">
+                              Indicative
+                            </span>
                           </p>
                           <div className="mt-1.5 flex items-center gap-2">
                             <div className="flex items-center rounded-lg border border-slate-200 bg-white shadow-xs">
@@ -1069,7 +1098,7 @@ function CartDrawer() {
                   <div className="space-y-3 border-t border-slate-200 bg-slate-50/50 p-5">
                     <div className="space-y-1.5 text-xs">
                       <div className="flex justify-between text-slate-500 font-medium">
-                        <span>Subtotal</span>
+                        <span>Indicative Subtotal</span>
                         <span>₹{cartTotal.toLocaleString("en-IN")}</span>
                       </div>
                       <div className="flex justify-between text-slate-500 font-medium">
@@ -1077,11 +1106,14 @@ function CartDrawer() {
                         <span>₹{gstEstimate.toLocaleString("en-IN")}</span>
                       </div>
                       <div className="flex justify-between border-t border-slate-200 pt-2 text-sm font-bold text-slate-900">
-                        <span>Total Payable</span>
+                        <span>Total (Indicative)</span>
                         <span className="font-display text-lg font-black text-red-600">
                           ₹{grandTotal.toLocaleString("en-IN")}
                         </span>
                       </div>
+                      <p className="text-[10px] text-amber-700 font-semibold leading-tight pt-1">
+                        *Prices are indicative demo values while the site is under development. Real price confirmed upon quotation.
+                      </p>
                     </div>
 
                     {/* Buy Now In-App Order Button */}
@@ -1089,20 +1121,20 @@ function CartDrawer() {
                       onClick={() => setCheckoutStep("details")}
                       className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3.5 text-sm font-bold text-white shadow-md shadow-blue-600/20 transition-all hover:from-blue-700 hover:to-indigo-700 hover:scale-[1.01]"
                     >
-                      <Sparkles className="size-4" /> Buy Now (Enter Order Details)
+                      <Sparkles className="size-4" /> Place Inquiry / Order Details
                     </button>
 
                     {/* Send Quote via WhatsApp Button */}
                     <button
                       onClick={() => {
-                        const whatsappMessage = `Hi ICS Computer Store! Please send me an official quotation for the following cart items:\n\n${cart
+                        const whatsappMessage = `Hi ICS Computer Store! I am viewing your development preview website. The cart prices are indicative/demo rates. Please verify stock and send me your REAL / ACTUAL price quotation for these items:\n\n${cart
                           .map(
                             (item, i) =>
-                              `${i + 1}. ${item.name} (Qty: ${item.qty}) - ₹${(item.price * item.qty).toLocaleString("en-IN")}`,
+                              `${i + 1}. ${item.name} (Qty: ${item.qty}) - Indicative: ₹${(item.price * item.qty).toLocaleString("en-IN")}`,
                           )
                           .join(
                             "\n",
-                          )}\n\nSubtotal: ₹${cartTotal.toLocaleString("en-IN")}\nEstimated GST (18%): ₹${gstEstimate.toLocaleString("en-IN")}\nGrand Total: ₹${grandTotal.toLocaleString("en-IN")}\n\nPlease share the formal quotation PDF / availability.`;
+                          )}\n\nIndicative Total: ₹${grandTotal.toLocaleString("en-IN")}\n\nPlease send me the real price quotation and current stock availability.`;
                         window.open(
                           `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(whatsappMessage)}`,
                           "_blank",
@@ -1110,7 +1142,7 @@ function CartDrawer() {
                       }}
                       className="flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 py-2.5 text-xs font-bold transition-all shadow-xs"
                     >
-                      <Phone className="size-3.5 text-emerald-600" /> Send Quotation via WhatsApp
+                      <Phone className="size-3.5 text-emerald-600" /> Request Real Price Quotation via WhatsApp
                     </button>
                   </div>
                 )}

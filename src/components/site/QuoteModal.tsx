@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  AlertTriangle,
   Building2,
   Calendar,
   CheckCircle2,
@@ -76,10 +77,10 @@ export default function QuoteModal() {
       notes: cleanNotes,
     });
 
-    const msg = `Hi ICS Computer Store! Here is my quote request:\n\n• Name: ${cleanName}\n• Phone: ${cleanPhone}\n• Service Required: ${service}\n• Notes / Spec: ${cleanNotes || "Standard Inquiry"}\n\nPlease share availability & quotation.`;
+    const msg = `Hi ICS Computer Store! I am viewing your development preview website and requesting your REAL PRICE quotation:\n\n• Name: ${cleanName}\n• Phone: ${cleanPhone}\n• Service/Category: ${service}\n• Required Items / Spec: ${cleanNotes || "General Pricing Inquiry"}\n\nSince catalog prices are indicative, please send me your authentic current live pricing & GST quotation.`;
     window.open(waLink(msg), "_blank");
     setSent(true);
-    toast.success("Quote sent & saved to your account!");
+    toast.success("Quote request sent & saved to your account!");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -140,11 +141,22 @@ export default function QuoteModal() {
               </span>
             </div>
             <h3 className="mt-2 font-display text-2xl font-black text-slate-900">
-              Request a Custom Quote
+              Request Official Price Quotation
             </h3>
             <p className="mt-1 text-xs text-slate-600">
-              Share your requirement — our Coimbatore engineering team responds with verified proforma pricing within 2 hours.
+              Share your requirement — our Coimbatore sales engineers will reply with our authentic live store pricing &amp; GST invoice.
             </p>
+
+            {/* Development Pricing Callout */}
+            <div className="mt-3 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-950">
+              <p className="font-bold flex items-center gap-1.5 text-amber-900">
+                <AlertTriangle className="size-3.5 text-amber-600 shrink-0" />
+                Website Under Active Development
+              </p>
+              <p className="mt-0.5 text-[11px] leading-relaxed text-amber-800">
+                Prices shown on the website catalog are demo / indicative values. When you submit this quotation form, we will verify live distributor stock and send you the <strong>authentic real price</strong>.
+              </p>
+            </div>
 
             <button
               onClick={closeQuote}

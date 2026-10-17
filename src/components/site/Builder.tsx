@@ -1,11 +1,13 @@
 import { useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import {
+  AlertTriangle,
   Box,
   CheckCircle2,
   CircuitBoard,
   Cpu,
   Fan,
+  FileText,
   Gauge,
   HardDrive,
   MemoryStick,
@@ -129,13 +131,13 @@ export default function Builder() {
   const getWhatsAppBuildText = () => {
     const lines = activePartObjects.map(
       (item) =>
-        `• ${BUILDER_CATALOG[item.cat].label}: ${item.part.name} (₹${item.part.price.toLocaleString("en-IN")})`,
+        `• ${BUILDER_CATALOG[item.cat].label}: ${item.part.name} (Indicative: ₹${item.part.price.toLocaleString("en-IN")})`,
     );
-    return `Hi ICS Computer Store! I configured a custom PC build on your website:\n\n${lines.join(
+    return `Hi ICS Computer Store! I configured a custom PC build on your preview website:\n\n${lines.join(
       "\n",
-    )}\n\nTotal Estimated Price: ₹${totalPrice.toLocaleString(
+    )}\n\nIndicative Demo Total: ₹${totalPrice.toLocaleString(
       "en-IN",
-    )}\nEstimated Power Draw: ${estimatedTdp}W\n\nPlease confirm part availability, delivery time, and free assembly in Coimbatore.`;
+    )}\nEstimated Power Draw: ${estimatedTdp}W\n\nI understand website rates are provisional/under development. Please send me your REAL / AUTHENTIC component price quotation, GST bill, and stock availability in Coimbatore.`;
   };
 
   const handleAddAllToCart = () => {
@@ -380,11 +382,17 @@ export default function Builder() {
           <div className="space-y-5 lg:col-span-5">
             {/* Price & Summary Card */}
             <div className="rounded-3xl border border-border/40 glass-card p-6 shadow-soft">
-              <div className="flex items-center justify-between border-b border-border pb-4">
+              <div className="flex items-center justify-between border-b border-border pb-4 flex-wrap gap-2">
                 <div>
-                  <span className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
-                    Build Total (8 Components)
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
+                      Build Total (8 Components)
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[10px] font-extrabold text-amber-700 dark:text-amber-300">
+                      <AlertTriangle className="size-3 text-amber-600 dark:text-amber-400" />
+                      Indicative Rates
+                    </span>
+                  </div>
                   <motion.p
                     key={totalPrice}
                     initial={{ scale: 1.06, color: "oklch(0.56 0.24 25)" }}
@@ -401,6 +409,17 @@ export default function Builder() {
                   </span>
                   <p className="mt-1 text-xs text-muted-foreground font-medium">24-Hr Delivery</p>
                 </div>
+              </div>
+
+              {/* Development Pricing Notice */}
+              <div className="mt-3 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-950 dark:text-amber-200">
+                <p className="font-bold flex items-center gap-1.5 text-amber-900 dark:text-amber-300">
+                  <AlertTriangle className="size-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                  Website Under Development — Rates are Estimates
+                </p>
+                <p className="mt-0.5 text-[11px] leading-relaxed text-amber-800 dark:text-amber-300/90">
+                  Individual component prices are sample placeholder rates. Submit this build for an official quote to receive our <strong>exact live market price</strong>.
+                </p>
               </div>
 
               {/* Compatibility Diagnostics */}
@@ -475,13 +494,28 @@ export default function Builder() {
 
               {/* CTAs */}
               <div className="mt-6 space-y-2.5">
+                <button
+                  onClick={() =>
+                    openQuote(
+                      `Custom PC Build Real Price Quote Request:\n${activePartObjects
+                        .map((item) => `• ${BUILDER_CATALOG[item.cat].label}: ${item.part.name}`)
+                        .join("\n")}\n\nIndicative Demo Total: ₹${totalPrice.toLocaleString(
+                        "en-IN",
+                      )}. Please verify live stock and send me your authentic price quotation.`,
+                    )
+                  }
+                  className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 py-3.5 text-sm font-extrabold text-slate-950 shadow-lift transition-transform hover:scale-[1.02] active:scale-95"
+                >
+                  <FileText className="size-4 text-slate-950" /> Request Real Price Quote
+                </button>
+
                 <a
                   href={waLink(getWhatsAppBuildText())}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 py-3.5 text-sm font-semibold text-white shadow-lift transition-transform hover:scale-[1.02] active:scale-95"
+                  className="flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 hover:bg-emerald-700 py-3 text-sm font-semibold text-white shadow-lift transition-transform hover:scale-[1.02] active:scale-95"
                 >
-                  <MessageCircle className="size-4" /> Send Build to WhatsApp
+                  <MessageCircle className="size-4" /> WhatsApp for Real Price Quote
                 </a>
 
                 <div className="grid grid-cols-2 gap-2">

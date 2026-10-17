@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useInView } from "framer-motion";
 import {
+  AlertTriangle,
   Eye,
+  FileText,
   GitCompareArrows,
   Heart,
   MessageCircle,
@@ -47,6 +49,7 @@ export default function Products() {
     toggleCompare,
     isInCompare,
     setQuickViewProduct,
+    openQuote,
   } = useApp();
 
   const [productsList, setProductsList] = useState<Product[]>(PRODUCTS);
@@ -220,6 +223,47 @@ export default function Products() {
           </div>
         </motion.div>
 
+        {/* Catalog Under Development Warning Banner */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={headerInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5, delay: 0.35 }}
+          className="mt-6 rounded-2xl border border-amber-500/40 bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-amber-500/15 p-4 sm:p-5 shadow-xs"
+        >
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-400">
+                <AlertTriangle className="size-5" />
+              </div>
+              <div>
+                <h3 className="font-display text-sm sm:text-base font-extrabold text-ink flex items-center gap-2 flex-wrap">
+                  <span>Product Catalog Pricing Disclaimer</span>
+                  <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wide">
+                    Under Development
+                  </span>
+                </h3>
+                <p className="mt-1 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  Prices displayed across this catalog are <strong>sample / placeholder rates</strong> while our website is under active development. If you want the <strong>authentic live price &amp; official GST quotation</strong>, please click <strong>"Request Real Price"</strong> or message us on WhatsApp — we will promptly send you the accurate store pricing.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
+              <button
+                onClick={() =>
+                  openQuote(
+                    "Catalog Price Inquiry: Please send me your live pricing and quotation for store components.",
+                  )
+                }
+                className="inline-flex items-center gap-1.5 rounded-full bg-slate-950 dark:bg-white text-white dark:text-slate-950 px-4 py-2 text-xs font-bold transition-all hover:scale-105"
+              >
+                <FileText className="size-3.5" />
+                <span>Get Real Price Quote</span>
+              </button>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Products Grid */}
         {filteredProducts.length === 0 ? (
           <div className="py-20 text-center">
@@ -254,6 +298,7 @@ export default function Products() {
                     toggleCompare={toggleCompare}
                     isInCompare={isInCompare}
                     setQuickViewProduct={setQuickViewProduct}
+                    openQuote={openQuote}
                   />
                 ))}
               </AnimatePresence>
@@ -310,6 +355,7 @@ function ProductCard({
   toggleCompare,
   isInCompare,
   setQuickViewProduct,
+  openQuote,
 }: {
   product: Product;
   index: number;
@@ -319,6 +365,7 @@ function ProductCard({
   toggleCompare: (p: Product) => void;
   isInCompare: (id: string) => boolean;
   setQuickViewProduct: (p: Product | null) => void;
+  openQuote: (preset?: string) => void;
 }) {
   const isSaved = isInWishlist(p.id);
   const isComparing = isInCompare(p.id);
@@ -472,56 +519,68 @@ function ProductCard({
 
       {/* Price & Action Buttons Area */}
       <div className="border-t border-border/40 p-4 sm:p-5 pt-3">
-        <div className="flex items-baseline gap-2">
+        <div className="flex items-baseline gap-2 flex-wrap">
           <span className="font-display text-xl sm:text-2xl font-bold text-brand-red">
             ₹{p.price.toLocaleString("en-IN")}
           </span>
           <span className="text-sm text-muted-foreground line-through">
             ₹{p.mrp.toLocaleString("en-IN")}
           </span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[10px] font-extrabold text-amber-700 dark:text-amber-300">
+            <AlertTriangle className="size-3 text-amber-600 dark:text-amber-400" />
+            Indicative Demo Price
+          </span>
         </div>
+        <p className="mt-1 text-[10px] text-muted-foreground leading-tight">
+          *Site is under development. Click below to request our real, accurate price.
+        </p>
 
         <div className="mt-3 flex gap-2">
-          <motion.button
-            onClick={handleAddToCart}
-            whileTap={{ scale: 0.95 }}
-            className={`flex flex-1 items-center justify-center gap-1.5 rounded-full py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all duration-300 ${
-              addedToCart
-                ? "bg-emerald-600 shadow-[0_0_20px_oklch(0.5_0.2_160/0.3)]"
-                : "bg-slate-900 dark:bg-brand-blue hover:bg-brand-blue dark:hover:bg-brand-blue/90 hover:shadow-blue hover:scale-[1.02]"
-            }`}
+          {/* Primary CTA: Request Real Price Quotation */}
+          <button
+            onClick={() =>
+              openQuote(
+                `Real Price Quotation Request for: ${p.name} (Brand: ${p.brand}, Category: ${p.category}). Please share your current live store price and GST invoice quotation.`,
+              )
+            }
+            title="Request Real Price & Quote"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 py-2.5 text-xs sm:text-sm font-extrabold text-slate-950 shadow-sm transition-all hover:scale-[1.02] active:scale-95"
           >
-            {addedToCart ? (
-              <>
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 500 }}
-                >
-                  ✓
-                </motion.span>{" "}
-                Added!
-              </>
-            ) : (
-              <>
-                <ShoppingCart className="size-4" /> Add to Cart
-              </>
-            )}
-          </motion.button>
+            <FileText className="size-3.5 text-slate-950" />
+            <span>Request Real Price</span>
+          </button>
 
+          {/* WhatsApp Direct Inquiry for Real Price */}
           <a
             href={waLink(
-              `Hi ICS Computer Store, I want to inquire about ${p.name} (₹${p.price.toLocaleString(
-                "en-IN",
-              )}). Is it available in your Gandhipuram store?`,
+              `Hi ICS Computer Store, I am viewing your development preview website. For "${p.name}", the listed price is indicative. Please send me your REAL / ACTUAL price quotation and availability.`,
             )}
             target="_blank"
             rel="noreferrer"
             aria-label={`WhatsApp inquiry for ${p.name}`}
-            className="grid place-items-center rounded-full bg-gradient-brand px-3 text-white transition-all hover:scale-105 hover:shadow-lift"
+            title="WhatsApp for Real Price"
+            className="grid place-items-center rounded-full bg-emerald-600 hover:bg-emerald-700 px-3 text-white transition-all hover:scale-105 hover:shadow-lift"
           >
             <MessageCircle className="size-4" />
           </a>
+
+          {/* Add to Cart for bundling */}
+          <motion.button
+            onClick={handleAddToCart}
+            whileTap={{ scale: 0.95 }}
+            title="Add to Cart (Indicative)"
+            className={`grid place-items-center rounded-full px-3 py-2 text-xs font-semibold text-white shadow-sm transition-all ${
+              addedToCart
+                ? "bg-emerald-600 shadow-[0_0_20px_oklch(0.5_0.2_160/0.3)]"
+                : "bg-slate-900 dark:bg-brand-blue hover:bg-brand-blue dark:hover:bg-brand-blue/90"
+            }`}
+          >
+            {addedToCart ? (
+              <span className="font-bold">✓</span>
+            ) : (
+              <ShoppingCart className="size-4" />
+            )}
+          </motion.button>
         </div>
       </div>
     </motion.article>
